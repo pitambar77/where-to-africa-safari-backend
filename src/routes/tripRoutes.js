@@ -114,7 +114,7 @@ router.post(
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 10 },
     { name: "itineraryImages", maxCount: 20 }, // ✅ added itinerary image upload
-     { name: "tripHighlightImage", maxCount: 1 }, // ✅ single image only
+     { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
   ]),
   createTrip
 );
@@ -139,7 +139,7 @@ router.put(
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 10 },
     { name: "itineraryImages", maxCount: 20 }, // ✅ added itinerary image upload
-   { name: "tripHighlightImage", maxCount: 1 }, // ✅ single image only
+   { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
   ]),
   updateTrip
 );
