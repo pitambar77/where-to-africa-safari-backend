@@ -43,7 +43,7 @@ const tripSchema = new mongoose.Schema({
   imagePublicId: String,
   duration: String,
   price: String,
-  rating: String, // change number to String
+  rating: Number, // change number to String
   description: String,
   overviewTitle: { type: String, required: true },
   overviewSubTitle: { type: String,required:true },
