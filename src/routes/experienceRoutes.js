@@ -87,7 +87,7 @@ router.post(
   { name: "galleryImages", maxCount: 10 },
   { name: "highlightImages", maxCount: 10 },
   { name: "gameDriveImages", maxCount: 10 },
-  { name: "includeIcons", maxCount: 10 },
+  { name: "includeIcons", maxCount: 20 },
 ]),  
 createExperience
 );
@@ -101,7 +101,7 @@ router.put(
   { name: "galleryImages", maxCount: 10 },
   { name: "highlightImages", maxCount: 10 },
   { name: "gameDriveImages", maxCount: 10 },
-  { name: "includeIcons", maxCount: 10 },
+  { name: "includeIcons", maxCount: 20 },
 ]),
   updateExperience
 );
