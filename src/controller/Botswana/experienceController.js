@@ -1,398 +1,8 @@
-
-
-
-
-
-// // ✅ CREATE Experience and link it to Destination
-// // export const createExperience = async (req, res) => {
-// //   try {
-// //     const {
-// //       destinationId, // 👈 You must send this from frontend
-// //       bannerTitle,
-// //       bannerDescription,
-// //       experienceInfo,
-// //       overview,
-// //       includes,
-// //       gameDrives,
-// //       highlights,
-// //       galleryDescription,
-// //     } = req.body;
-
-// //     const bannerImage = req.files?.bannerImage
-// //       ? req.files.bannerImage[0].path
-// //       : null;
-
-// //     const galleryImages = req.files?.galleryImages
-// //       ? req.files.galleryImages.map((file) => ({ image: file.path }))
-// //       : [];
-
-// //     // ✅ Create new Experience
-// //     const experience = await Experience.create({
-// //       bannerImage,
-// //       bannerTitle,
-// //       bannerDescription,
-// //       experienceInfo: JSON.parse(experienceInfo),
-// //       overview: JSON.parse(overview),
-// //       includes: JSON.parse(includes),
-// //       gameDrives: JSON.parse(gameDrives),
-// //       highlights: JSON.parse(highlights),
-// //       gallery: { description: galleryDescription, images: galleryImages },
-// //     });
-
-// //     // ✅ Link Experience to Destination (if destinationId provided)
-// //     if (destinationId) {
-// //       await Destination.findByIdAndUpdate(destinationId, {
-// //         $push: { experience: experience._id },
-// //       });
-// //     }
-
-// //     res.status(201).json({
-// //       message: "Experience created successfully",
-// //       experience,
-// //     });
-// //   } catch (error) {
-// //     console.error("Error creating experience:", error);
-// //     res.status(500).json({ message: error.message });
-// //   }
-// // };
-
-// // image store in clodinary of game drive
-
-// // export const createExperience = async (req, res) => {
-// //   try {
-// //     const {
-// //       destinationId,
-// //       bannerTitle,
-// //       bannerDescription,
-// //       experienceInfo,
-// //       overview,
-// //       includes,
-// //       gameDrives,
-// //       highlights,
-// //       galleryDescription,
-// //     } = req.body;
-
-// //     // ✅ Upload banner image
-// //     const bannerImage = req.files?.bannerImage
-// //       ? req.files.bannerImage[0].path
-// //       : null;
-
-// //     // ✅ Upload gallery images
-// //     const galleryImages = req.files?.galleryImages
-// //       ? req.files.galleryImages.map((file) => ({ image: file.path }))
-// //       : [];
-
-// //     // ✅ Upload game drive images (Cloudinary)
-// //     // Expecting files under field name `gameDriveImages`
-// //     const gameDriveImages = req.files?.gameDriveImages
-// //       ? req.files.gameDriveImages.map((file) => file.path)
-// //       : [];
-
-// //     // ✅ Parse game drive data
-// //     let parsedGameDrives = [];
-// //     if (gameDrives) {
-// //       const drives = JSON.parse(gameDrives);
-// //       parsedGameDrives = drives.map((drive, index) => ({
-// //         ...drive,
-// //         image: gameDriveImages[index] || drive.image || null,
-// //       }));
-// //     }
-
-// //     // ✅ Create new Experience
-// //     const experience = await Experience.create({
-// //       bannerImage,
-// //       bannerTitle,
-// //       bannerDescription,
-// //       experienceInfo: JSON.parse(experienceInfo),
-// //       overview: JSON.parse(overview),
-// //       includes: JSON.parse(includes),
-// //       gameDrives: parsedGameDrives,
-// //       highlights: JSON.parse(highlights),
-// //       gallery: { description: galleryDescription, images: galleryImages },
-// //     });
-
-// //     // ✅ Link Experience to Destination
-// //     if (destinationId) {
-// //       await Destination.findByIdAndUpdate(destinationId, {
-// //         $push: { experience: experience._id },
-// //       });
-// //     }
-
-// //     res.status(201).json({
-// //       message: "Experience created successfully",
-// //       experience,
-// //     });
-// //   } catch (error) {
-// //     console.error("Error creating experience:", error);
-// //     res.status(500).json({ message: error.message });
-// //   }
-// // };
-
-// // image store in clodinary of game drive and highlights
-
-// import Experience from "../../models/Botswana/Experience.js";
-// import Destination from "../../models/Botswana/Destination.js"; // ✅ Add this import
-// import cloudinary from "../../config/cloudinary.js";
-
-// export const createExperience = async (req, res) => {
-//   try {
-//     const {
-//       destinationId,
-//       bannerTitle,
-//       bannerDescription,
-//       experienceInfo,
-//       overview,
-//       includes,
-//       gameDrives,
-//       highlights,
-//       galleryDescription,
-//     } = req.body;
-
-//     // ✅ Upload banner image
-//     const bannerImage = req.files?.bannerImage
-//       ? req.files.bannerImage[0].path
-//       : null;
-
-//     // ✅ Upload gallery images
-//     const galleryImages = req.files?.galleryImages
-//       ? req.files.galleryImages.map((file) => ({ image: file.path }))
-//       : [];
-
-//     // ✅ Upload game drive images
-//     const gameDriveImages = req.files?.gameDriveImages
-//       ? req.files.gameDriveImages.map((file) => file.path)
-//       : [];
-
-//     // ✅ Upload highlight images
-//     const highlightImages = req.files?.highlightImages
-//       ? req.files.highlightImages.map((file) => file.path)
-//       : [];
-
-//     // ✅ Parse and merge game drive data
-//     let parsedGameDrives = [];
-//     if (gameDrives) {
-//       const drives = JSON.parse(gameDrives);
-//       parsedGameDrives = drives.map((drive, index) => ({
-//         ...drive,
-//         image: gameDriveImages[index] || drive.image || null,
-//       }));
-//     }
-
-//     // ✅ Parse and merge highlight data
-//     let parsedHighlights = [];
-//     if (highlights) {
-//       const hlData = JSON.parse(highlights);
-//       parsedHighlights = hlData.map((item, index) => ({
-//         ...item,
-//         image: highlightImages[index] || item.image || null,
-//       }));
-//     }
-
-//     // ✅ Create Experience document
-//     const experience = await Experience.create({
-//       bannerImage,
-//       bannerTitle,
-//       bannerDescription,
-//       experienceInfo: JSON.parse(experienceInfo),
-//       overview: JSON.parse(overview),
-//       includes: JSON.parse(includes),
-//       gameDrives: parsedGameDrives,
-//       highlights: parsedHighlights,
-//       gallery: { description: galleryDescription, images: galleryImages },
-//     });
-
-//     // ✅ Link Experience to Destination
-//     if (destinationId) {
-//       await Destination.findByIdAndUpdate(destinationId, {
-//         $push: { experience: experience._id },
-//       });
-//     }
-
-//     res.status(201).json({
-//       message: "Experience created successfully",
-//       experience,
-//     });
-//   } catch (error) {
-//     console.error("Error creating experience:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
-// // ✅ GET All Experiences (optionally populate Destination)
-// export const getAllExperiences = async (req, res) => {
-//   try {
-//     const experiences = await Experience.find().populate({
-//       path: "destinationId",
-//       select: "name slug hero", // Optional fields
-//     });
-//     res.json(experiences);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // ✅ UPDATE Experience
-// export const updateExperience = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updateData = req.body;
-
-//     if (req.files?.bannerImage) {
-//       updateData.bannerImage = req.files.bannerImage[0].path;
-//     }
-
-//     if (req.files?.galleryImages) {
-//       updateData.gallery = {
-//         description: req.body.galleryDescription,
-//         images: req.files.galleryImages.map((f) => ({ image: f.path })),
-//       };
-//     }
-
-//     const experience = await Experience.findByIdAndUpdate(id, updateData, {
-//       new: true,
-//     });
-
-//     if (!experience) {
-//       return res.status(404).json({ message: "Experience not found" });
-//     }
-
-//     res.json({
-//       message: "Experience updated successfully",
-//       experience,
-//     });
-//   } catch (error) {
-//     console.error("Error updating experience:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // ✅ DELETE Experience (and unlink from Destination)
-// export const deleteExperience = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     // Remove experience
-//     const experience = await Experience.findByIdAndDelete(id);
-//     if (!experience) {
-//       return res.status(404).json({ message: "Experience not found" });
-//     }
-
-//     // ✅ Remove reference from Destination
-//     await Destination.updateMany(
-//       { experience: id },
-//       { $pull: { experience: id } }
-//     );
-
-//     res.json({ message: "Experience deleted successfully" });
-//   } catch (error) {
-//     console.error("Error deleting experience:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
-// // ✅ GET Experience by ID
-// export const getExperienceById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     // Find experience by ID and populate optional destination
-//     const experience = await Experience.findById(id).populate({
-//       path: "destinationId",
-//       select: "name slug hero",
-//     });
-
-//     if (!experience) {
-//       return res.status(404).json({ message: "Experience not found" });
-//     }
-
-//     res.status(200).json(experience);
-//   } catch (error) {
-//     console.error("Error fetching experience by ID:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
 // region by destiinationId or regionsId
 
 import Experience from "../../models/Botswana/Experience.js";
 import Destination from "../../models/Botswana/Destination.js";
 import cloudinary from "../../config/cloudinary.js";
-
-// ✅ CREATE Experience (linked to destination & region)
-// export const createExperience = async (req, res) => {
-//   try {
-//     const {
-//       destinationId,
-//       regionSlug,
-//       bannerTitle,
-//       bannerDescription,
-//       experienceInfo,
-//       overview,
-//       includes,
-//       gameDrives,
-//       highlights,
-//       galleryDescription,
-//     } = req.body;
-
-//     // ✅ Handle uploads
-//     const bannerImage = req.files?.bannerImage?.[0]?.path || null;
-//     const galleryImages = req.files?.galleryImages?.map((f) => ({ image: f.path })) || [];
-
-//     // ✅ Parse and merge gameDrives
-//     let parsedGameDrives = [];
-//     if (gameDrives) {
-//       const drives = JSON.parse(gameDrives);
-//       const driveImages = req.files?.gameDriveImages?.map((f) => f.path) || [];
-//       parsedGameDrives = drives.map((drive, i) => ({
-//         ...drive,
-//         image: driveImages[i] || drive.image || null,
-//       }));
-//     }
-
-//     // ✅ Parse and merge highlights
-//     let parsedHighlights = [];
-//     if (highlights) {
-//       const hlData = JSON.parse(highlights);
-//       const hlImages = req.files?.highlightImages?.map((f) => f.path) || [];
-//       parsedHighlights = hlData.map((h, i) => ({
-//         ...h,
-//         image: hlImages[i] || h.image || null,
-//       }));
-//     }
-
-//     // ✅ Create Experience document
-//     const experience = await Experience.create({
-//       bannerImage,
-//       bannerTitle,
-//       bannerDescription,
-//       experienceInfo: JSON.parse(experienceInfo),
-//       overview: JSON.parse(overview),
-//       includes: JSON.parse(includes),
-//       gameDrives: parsedGameDrives,
-//       highlights: parsedHighlights,
-//       gallery: { description: galleryDescription, images: galleryImages },
-//     });
-
-//     // ✅ Link to destination’s region
-//     if (destinationId && regionSlug) {
-//       await Destination.updateOne(
-//         { _id: destinationId, "regions.slug": regionSlug },
-//         { $push: { "regions.$.experiences": experience._id } }
-//       );
-//     }
-
-//     res.status(201).json({
-//       message: "Experience created successfully",
-//       experience,
-//     });
-//   } catch (error) {
-//     console.error("Error creating experience:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 export const createExperience = async (req, res) => {
   try {
@@ -438,6 +48,8 @@ export const createExperience = async (req, res) => {
 
     // ✅ Create Experience document
     const experience = await Experience.create({
+      destination: destinationId, // ✅ ADD
+      region: regionId, // ✅ ADD
       bannerImage,
       bannerTitle,
       bannerDescription,
@@ -502,41 +114,149 @@ export const getExperienceById = async (req, res) => {
 };
 
 // ✅ UPDATE Experience (supports partial updates and new images)
+// export const updateExperience = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const updateData = { ...req.body };
+
+//     // ✅ Handle reuploads
+//     if (req.files?.bannerImage?.[0]) {
+//       updateData.bannerImage = req.files.bannerImage[0].path;
+//     }
+
+//     if (req.files?.galleryImages) {
+//       updateData.gallery = {
+//         description: req.body.galleryDescription,
+//         images: req.files.galleryImages.map((f) => ({ image: f.path })),
+//       };
+//     }
+
+//     // ✅ Rebuild highlights/gameDrives if updated
+//     if (req.body.highlights)
+//       updateData.highlights = JSON.parse(req.body.highlights);
+//     if (req.body.gameDrives)
+//       updateData.gameDrives = JSON.parse(req.body.gameDrives);
+//     if (req.body.experienceInfo)
+//       updateData.experienceInfo = JSON.parse(req.body.experienceInfo);
+//     if (req.body.overview) updateData.overview = JSON.parse(req.body.overview);
+//     if (req.body.includes) updateData.includes = JSON.parse(req.body.includes);
+
+//     const experience = await Experience.findByIdAndUpdate(id, updateData, {
+//       new: true,
+//     });
+
+//     if (!experience)
+//       return res.status(404).json({ message: "Experience not found" });
+
+//     res.json({ message: "Experience updated successfully", experience });
+//   } catch (error) {
+//     console.error("Error updating experience:", error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 export const updateExperience = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updateData = { ...req.body };
+    // 🔹 STEP 1: Load existing experience
+    const existingExperience = await Experience.findById(id);
+    if (!existingExperience) {
+      return res.status(404).json({ message: "Experience not found" });
+    }
 
-    // ✅ Handle reuploads
+    const oldDestinationId = existingExperience.destination?.toString();
+    const oldRegionId = existingExperience.region?.toString();
+
+    const newDestinationId = req.body.destinationId;
+    const newRegionId = req.body.regionId;
+
+    // 🔹 STEP 2: If destination/region changed → sync Destination document
+    if (
+      newDestinationId &&
+      newRegionId &&
+      (oldDestinationId !== newDestinationId || oldRegionId !== newRegionId)
+    ) {
+      // ❌ remove from old region
+      if (oldRegionId) {
+        await Destination.updateOne(
+          { "regions._id": oldRegionId },
+          { $pull: { "regions.$.experiences": existingExperience._id } }
+        );
+      }
+
+      // ✅ add to new region
+      await Destination.updateOne(
+        { _id: newDestinationId, "regions._id": newRegionId },
+        { $addToSet: { "regions.$.experiences": existingExperience._id } }
+      );
+
+      existingExperience.destination = newDestinationId;
+      existingExperience.region = newRegionId;
+    }
+
+    /* ---------- Handle uploads ---------- */
     if (req.files?.bannerImage?.[0]) {
-      updateData.bannerImage = req.files.bannerImage[0].path;
+      existingExperience.bannerImage = req.files.bannerImage[0].path;
     }
 
     if (req.files?.galleryImages) {
-      updateData.gallery = {
+      existingExperience.gallery = {
         description: req.body.galleryDescription,
         images: req.files.galleryImages.map((f) => ({ image: f.path })),
       };
     }
 
-    // ✅ Rebuild highlights/gameDrives if updated
-    if (req.body.highlights) updateData.highlights = JSON.parse(req.body.highlights);
-    if (req.body.gameDrives) updateData.gameDrives = JSON.parse(req.body.gameDrives);
-    if (req.body.experienceInfo) updateData.experienceInfo = JSON.parse(req.body.experienceInfo);
-    if (req.body.overview) updateData.overview = JSON.parse(req.body.overview);
-    if (req.body.includes) updateData.includes = JSON.parse(req.body.includes);
+    /* ---------- Parse JSON fields ---------- */
+    if (req.body.experienceInfo)
+      existingExperience.experienceInfo = JSON.parse(req.body.experienceInfo);
 
-    const experience = await Experience.findByIdAndUpdate(id, updateData, { new: true });
+    if (req.body.overview)
+      existingExperience.overview = JSON.parse(req.body.overview);
 
-    if (!experience) return res.status(404).json({ message: "Experience not found" });
+    // if (req.body.includes)
+    //   existingExperience.includes = JSON.parse(req.body.includes);
 
-    res.json({ message: "Experience updated successfully", experience });
+    if (req.body.includes) {
+  const incomingIncludes = JSON.parse(req.body.includes);
+  const includeIcons = req.files?.includeIcons?.map((f) => f.path) || [];
+
+  existingExperience.includes = incomingIncludes.map((inc, index) => ({
+    name: inc.name,
+    icon:
+      includeIcons[index] ||
+      existingExperience.includes[index]?.icon || // ✅ KEEP OLD ICON
+      null,
+  }));
+}
+
+
+    if (req.body.gameDrives)
+      existingExperience.gameDrives = JSON.parse(req.body.gameDrives);
+
+    if (req.body.highlights)
+      existingExperience.highlights = JSON.parse(req.body.highlights);
+
+    if (req.body.bannerTitle)
+      existingExperience.bannerTitle = req.body.bannerTitle;
+
+    if (req.body.bannerDescription)
+      existingExperience.bannerDescription = req.body.bannerDescription;
+
+    // 🔹 STEP 3: Save
+    const updatedExperience = await existingExperience.save();
+
+    res.json({
+      message: "Experience updated successfully",
+      experience: updatedExperience,
+    });
   } catch (error) {
     console.error("Error updating experience:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // ✅ DELETE Experience (unlink from destination region)
 export const deleteExperience = async (req, res) => {
@@ -544,13 +264,20 @@ export const deleteExperience = async (req, res) => {
     const { id } = req.params;
 
     const experience = await Experience.findByIdAndDelete(id);
-    if (!experience) return res.status(404).json({ message: "Experience not found" });
+    if (!experience)
+      return res.status(404).json({ message: "Experience not found" });
 
     // ✅ Unlink from any destination region
+    // await Destination.updateMany(
+    //   { "regions.experiences": id },
+    //   { $pull: { "regions.$.experiences": id } }
+    // );
+
     await Destination.updateMany(
-      { "regions.experiences": id },
-      { $pull: { "regions.$.experiences": id } }
-    );
+  { "regions.experiences": id },
+  { $pull: { "regions.$[].experiences": id } }
+);
+
 
     res.json({ message: "Experience deleted successfully" });
   } catch (error) {

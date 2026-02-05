@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const includeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  icon: { type: String, required: true },
+  name: { type: String },
+  icon: { type: String  },
 });
 
 const gameDriveSchema = new mongoose.Schema({

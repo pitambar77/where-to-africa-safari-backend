@@ -1,4 +1,3 @@
-
 // import Trip from "../../models/Botswana/Trip.js";
 // import Destination from "../../models/Botswana/Destination.js";
 
@@ -55,14 +54,12 @@
 //       image: itineraryImages[i] || item.image || null,
 //     }));
 
-
 // const tripHighlightImage = req.files?.tripHighlightImage?.[0]?.path || null;
 
 // const parsedTripHighlights = safeParse(tripHighlights).map((item) => ({
 //   ...item,
 //   tripImage: tripHighlightImage || item.tripImage || null,
 // }));
-
 
 //     // ✅ Create Trip
 //     const trip = await Trip.create({
@@ -138,7 +135,6 @@
 //   }));
 //   updateData.tripHighlights = parsedTripHighlights;
 // }
-
 
 //     // ✅ Update images if provided
 //     if (req.files?.image?.length) {
@@ -237,7 +233,9 @@ export const createTrip = async (req, res) => {
     } = req.body;
 
     if (!destinationId || !regionId) {
-      return res.status(400).json({ message: "Destination and Region are required" });
+      return res
+        .status(400)
+        .json({ message: "Destination and Region are required" });
     }
 
     /* ---------- Banner Image ---------- */
@@ -251,14 +249,16 @@ export const createTrip = async (req, res) => {
       })) || [];
 
     /* ---------- Itinerary ---------- */
-    const itineraryImages = req.files?.itineraryImages?.map((f) => f.path) || [];
+    const itineraryImages =
+      req.files?.itineraryImages?.map((f) => f.path) || [];
     const parsedItinerary = safeParse(itinerary).map((item, i) => ({
       ...item,
       image: itineraryImages[i] || null,
     }));
 
     /* ---------- Trip Highlights ---------- */
-    const highlightImages = req.files?.tripHighlightImage?.map((f) => f.path) || [];
+    const highlightImages =
+      req.files?.tripHighlightImage?.map((f) => f.path) || [];
     const parsedTripHighlights = safeParse(tripHighlights).map((item, i) => ({
       title: item.title,
       description: item.description,
@@ -269,6 +269,7 @@ export const createTrip = async (req, res) => {
     /* ---------- Create Trip ---------- */
     const trip = await Trip.create({
       destination: destinationId,
+      region: regionId, // ✅ ADD THIS
       title,
       subtitle,
       location,
@@ -333,6 +334,45 @@ export const updateTrip = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
+    // 🔹 STEP 2: Fetch existing trip
+    const existingTrip = await Trip.findById(id);
+    if (!existingTrip) {
+      return res.status(404).json({ message: "Trip not found" });
+    }
+
+    // old references
+    const oldDestinationId = existingTrip.destination?.toString();
+    const oldRegionId = existingTrip.region?.toString();
+
+    // new references (from frontend)
+    const newDestinationId = updateData.destinationId;
+    const newRegionId = updateData.regionId;
+
+    // 🔹 STEP 3: Sync trip inside destination → region.trips[]
+    if (
+      newDestinationId &&
+      newRegionId &&
+      (oldDestinationId !== newDestinationId || oldRegionId !== newRegionId)
+    ) {
+      // ❌ Remove from old region
+      if (oldRegionId) {
+        await Destination.updateOne(
+          { "regions._id": oldRegionId },
+          { $pull: { "regions.$.trips": existingTrip._id } }
+        );
+      }
+
+      // ✅ Add to new region
+      await Destination.updateOne(
+        { _id: newDestinationId, "regions._id": newRegionId },
+        { $addToSet: { "regions.$.trips": existingTrip._id } }
+      );
+
+      // Update trip refs
+      existingTrip.destination = newDestinationId;
+      existingTrip.region = newRegionId;
+    }
+
     /* ---------- Parse Q&A ---------- */
     updateData.aboutBooking = safeParse(updateData.aboutBooking);
     updateData.requirements = safeParse(updateData.requirements);
@@ -343,16 +383,26 @@ export const updateTrip = async (req, res) => {
     }
 
     /* ---------- Gallery (APPEND, NOT REPLACE) ---------- */
+    // if (req.files?.gallery?.length) {
+    //   updateData.$push = {
+    //     gallery: {
+    //       $each: req.files.gallery.map((f) => ({
+    //         url: f.path,
+    //         publicId: f.filename,
+    //       })),
+    //     },
+    //   };
+    // }
+
     if (req.files?.gallery?.length) {
-      updateData.$push = {
-        gallery: {
-          $each: req.files.gallery.map((f) => ({
-            url: f.path,
-            publicId: f.filename,
-          })),
-        },
-      };
-    }
+  existingTrip.gallery.push(
+    ...req.files.gallery.map((f) => ({
+      url: f.path,
+      publicId: f.filename,
+    }))
+  );
+}
+
 
     /* ---------- Itinerary ---------- */
     // if (updateData.itinerary) {
@@ -366,17 +416,16 @@ export const updateTrip = async (req, res) => {
     // }
 
     if (updateData.itinerary) {
-  const itineraryImages = req.files?.itineraryImages || [];
+      const itineraryImages = req.files?.itineraryImages || [];
 
-  updateData.itinerary = safeParse(updateData.itinerary).map((item) => ({
-    ...item,
-    image:
-      typeof item.imageIndex === "number"
-        ? itineraryImages[item.imageIndex]?.path
-        : item.image,
-  }));
-}
-
+      updateData.itinerary = safeParse(updateData.itinerary).map((item) => ({
+        ...item,
+        image:
+          typeof item.imageIndex === "number"
+            ? itineraryImages[item.imageIndex]?.path
+            : item.image,
+      }));
+    }
 
     /* ---------- Trip Highlights ---------- */
     // if (updateData.tripHighlights) {
@@ -390,41 +439,44 @@ export const updateTrip = async (req, res) => {
     // }
 
     /* ---------- Trip Highlights ---------- */
-// if (updateData.tripHighlights) {
-//   const highlightImages = req.files?.tripHighlightImage || [];
+    // if (updateData.tripHighlights) {
+    //   const highlightImages = req.files?.tripHighlightImage || [];
 
-//   updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
-//     (item, i) => ({
-//       title: item.title,
-//       description: item.description,
-//       status: item.status,
-//       tripHighlightImage:
-//         highlightImages[i]?.path ?? item.tripHighlightImage,
-//     })
-//   );
-// }
+    //   updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
+    //     (item, i) => ({
+    //       title: item.title,
+    //       description: item.description,
+    //       status: item.status,
+    //       tripHighlightImage:
+    //         highlightImages[i]?.path ?? item.tripHighlightImage,
+    //     })
+    //   );
+    // }
 
-if (updateData.tripHighlights) {
-  const highlightImages = req.files?.tripHighlightImage || [];
+    if (updateData.tripHighlights) {
+      const highlightImages = req.files?.tripHighlightImage || [];
 
-  updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
-    (item) => ({
-      title: item.title,
-      description: item.description,
-      status: item.status,
-      tripHighlightImage:
-        typeof item.imageIndex === "number"
-          ? highlightImages[item.imageIndex]?.path
-          : item.tripHighlightImage,
-    })
-  );
-}
+      updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
+        (item) => ({
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          tripHighlightImage:
+            typeof item.imageIndex === "number"
+              ? highlightImages[item.imageIndex]?.path
+              : item.tripHighlightImage,
+        })
+      );
+    }
 
+    // const updatedTrip = await Trip.findByIdAndUpdate(id, updateData, {
+    //   new: true,
+    //   runValidators: true,
+    // });
 
-    const updatedTrip = await Trip.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    // 🔹 STEP 5: Apply updates to trip
+    Object.assign(existingTrip, updateData);
+    const updatedTrip = await existingTrip.save();
 
     if (!updatedTrip) {
       return res.status(404).json({ message: "Trip not found" });
