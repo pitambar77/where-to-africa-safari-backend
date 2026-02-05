@@ -46,6 +46,19 @@ export const createExperience = async (req, res) => {
       }));
     }
 
+    // ✅ Parse includes + includeIcons
+let parsedIncludes = [];
+if (includes) {
+  const includeData = JSON.parse(includes);
+  const includeIcons = req.files?.includeIcons?.map(f => f.path) || [];
+
+  parsedIncludes = includeData.map((inc, index) => ({
+    name: inc.name,
+    icon: includeIcons[index] || null,
+  }));
+}
+
+
     // ✅ Create Experience document
     const experience = await Experience.create({
       destination: destinationId, // ✅ ADD
@@ -55,7 +68,8 @@ export const createExperience = async (req, res) => {
       bannerDescription,
       experienceInfo: JSON.parse(experienceInfo),
       overview: JSON.parse(overview),
-      includes: JSON.parse(includes),
+      // includes: JSON.parse(includes),
+      includes: parsedIncludes,
       gameDrives: parsedGameDrives,
       highlights: parsedHighlights,
       gallery: { description: galleryDescription, images: galleryImages },
