@@ -8,7 +8,7 @@ const includeSchema = new mongoose.Schema({
 const gameDriveSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
-  pricePerPerson: { type: Number },
+  pricePerPerson: { type:String },
   image: { type: String },
 });
 
@@ -31,10 +31,10 @@ const experienceSchema = new mongoose.Schema(
     bannerDescription: { type: String, required: true },
 
     experienceInfo: {
-      days: { type: Number, required: true },
-      pricePerPerson: { type: Number, required: true },
-      location: { type: String, required: true },
-      journeyType: { type: String, required: true },
+      days: { type:String},
+      pricePerPerson: { type:String},
+      location: { type: String },
+      journeyType: { type: String },
     },
 
     overview: {
