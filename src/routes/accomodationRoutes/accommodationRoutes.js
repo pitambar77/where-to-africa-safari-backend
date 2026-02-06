@@ -62,6 +62,8 @@ import {
   getAccommodationById,
   updateAccommodation,
   deleteAccommodation,
+  deleteGalleryImage,
+  deleteAmenityImage
 } from "../../controller/accomodationController/accommodationController.js";
 
 const router = express.Router();
@@ -96,6 +98,12 @@ router.get("/:id", getAccommodationById);
 
 // DELETE
 router.delete("/:id", deleteAccommodation);
+
+router.delete("/:id/gallery/:index", deleteGalleryImage);
+router.delete("/:id/amenity/:index", deleteAmenityImage);
+
+
+
 
 export default router;
 

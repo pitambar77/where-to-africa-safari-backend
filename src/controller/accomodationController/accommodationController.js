@@ -1,5 +1,3 @@
-
-
 // import Accommodation from "../../models/accomodationModels/accommodationModel.js";
 // import Destination from "../../models/Botswana/Destination.js";
 
@@ -95,7 +93,6 @@
 //             { $push: { "regions.$.accommodations": accommodation._id } }
 //           );
 //         }
-    
 
 //     res.status(201).json({
 //       message: "✅ Accommodation created successfully",
@@ -200,12 +197,8 @@
 //   }
 // };
 
-
-
-
 import Accommodation from "../../models/accomodationModels/accommodationModel.js";
 import Destination from "../../models/Botswana/Destination.js";
-
 
 // ✅ Helper to safely parse JSON or comma-separated strings
 const safeParse = (value) => {
@@ -215,12 +208,18 @@ const safeParse = (value) => {
       return JSON.parse(value);
     }
     if (typeof value === "string") {
-      return value.split(",").map((v) => v.trim()).filter(Boolean);
+      return value
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
     }
     return Array.isArray(value) ? value : [value];
   } catch {
     return typeof value === "string"
-      ? value.split(",").map((v) => v.trim()).filter(Boolean)
+      ? value
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean)
       : [];
   }
 };
@@ -253,7 +252,7 @@ export const createAccommodation = async (req, res) => {
     } = req.body;
 
     // Images
-    const bannerImages = req.files?.bannerImages?.map(f => f.path) || [];
+    const bannerImages = req.files?.bannerImages?.map((f) => f.path) || [];
     const landingImage = req.files?.landingImage?.[0]?.path || "";
 
     // Amenities (image + name)
@@ -316,61 +315,326 @@ export const createAccommodation = async (req, res) => {
   }
 };
 
+// export const updateAccommodation = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     // const updateData = { ...req.body };
+
+//     const updateData = {
+//       bannerTitle: req.body.bannerTitle,
+//       bannerSubtitle: req.body.bannerSubtitle,
+//       bannerDescription: req.body.bannerDescription,
+//       overviewTitle: req.body.overviewTitle,
+//       overviewSubtitle: req.body.overviewSubtitle,
+//       overviewDescription: req.body.overviewDescription,
+//       destination: req.body.destination,
+//       subdestination: req.body.subdestination,
+//       name: req.body.name,
+//       location: req.body.location,
+//       pricePerPerson: req.body.pricePerPerson,
+//       nightsStay: req.body.nightsStay,
+//       accommodationType: req.body.accommodationType,
+//       checkIn: req.body.checkIn,
+//       checkOut: req.body.checkOut,
+//     };
+
+//     // Images
+//     // if (req.files?.bannerImages)
+//     //   updateData.bannerImages = req.files.bannerImages.map(f => f.path);
+
+//     if (req.files?.bannerImages?.length) {
+//       updateData.$push = {
+//         bannerImages: { $each: req.files.bannerImages.map((f) => f.path) },
+//       };
+//     }
+
+//     // if (req.files?.landingImage)
+//     //   updateData.landingImage = req.files.landingImage[0].path;
+
+//     if (req.files?.landingImage?.[0]) {
+//       updateData.landingImage = req.files.landingImage[0].path;
+//     }
+
+//     // Amenities
+//     // if (req.body.amenities) {
+//     //   const amenityImages = req.files?.amenityImages || [];
+//     //   updateData.amenities = JSON.parse(req.body.amenities).map((a, i) => ({
+//     //     amenityName: a.amenityName,
+//     //     amenityImage: amenityImages[i]?.path || a.amenityImage,
+//     //   }));
+//     // }
+
+//     if (req.body.amenities) {
+//       const amenitiesData = JSON.parse(req.body.amenities);
+//       const amenityImages = req.files?.amenityImages || [];
+
+//       updateData.amenities = amenitiesData.map((a, i) => ({
+//         amenityName: a.amenityName,
+//         amenityImage:
+//           a.amenityImage || (amenityImages[i] ? amenityImages[i].path : ""),
+//       }));
+//     }
+
+//     // Gallery
+//     // if (req.body.gallery) {
+//     //   const galleryImages = req.files?.galleryImages || [];
+//     //   updateData.gallery = JSON.parse(req.body.gallery).map((g, i) => ({
+//     //     galleryName: g.galleryName,
+//     //     galleryImage: galleryImages[i]?.path || g.galleryImage,
+//     //   }));
+//     // }
+
+//     if (req.body.gallery) {
+//       const galleryData = JSON.parse(req.body.gallery);
+//       const galleryImages = req.files?.galleryImages || [];
+
+//       updateData.gallery = galleryData.map((g, i) => ({
+//         galleryName: g.galleryName,
+//         galleryImage:
+//           g.galleryImage || (galleryImages[i] ? galleryImages[i].path : ""),
+//       }));
+//     }
+
+//     if (req.body.aboutBooking)
+//       updateData.aboutBooking = JSON.parse(req.body.aboutBooking);
+
+//     if (req.body.requirements)
+//       updateData.requirements = JSON.parse(req.body.requirements);
+
+//     // const updated = await Accommodation.findByIdAndUpdate(id, updateData, {
+//     //   new: true,
+//     //   runValidators: true,
+//     // });
+
+//     const updated = await Accommodation.findByIdAndUpdate(id, updateData, {
+//       new: true,
+//       runValidators: true,
+//     });
+
+//     if (!updated)
+//       return res.status(404).json({ message: "Accommodation not found" });
+
+//     res.json({
+//       message: "✅ Accommodation updated successfully",
+//       accommodation: updated,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
+// ✅ GET all accommodations
+
 export const updateAccommodation = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body };
+    const updateData = {};
 
-    // Images
-    if (req.files?.bannerImages)
-      updateData.bannerImages = req.files.bannerImages.map(f => f.path);
+    // =====================
+    // BASIC TEXT FIELDS
+    // =====================
+    const fields = [
+      "bannerTitle",
+      "bannerSubtitle",
+      "bannerDescription",
+      "overviewTitle",
+      "overviewSubtitle",
+      "overviewDescription",
+      "destination",
+      "subdestination",
+      "name",
+      "location",
+      "pricePerPerson",
+      "nightsStay",
+      "accommodationType",
+      "checkIn",
+      "checkOut",
+    ];
 
-    if (req.files?.landingImage)
+    fields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    // =====================
+    // IMAGES
+    // =====================
+    if (req.files?.bannerImages?.length) {
+      updateData.bannerImages = req.files.bannerImages.map((f) => f.path);
+    }
+
+    if (req.files?.landingImage?.length) {
       updateData.landingImage = req.files.landingImage[0].path;
+    }
 
-    // Amenities
-    if (req.body.amenities) {
-      const amenityImages = req.files?.amenityImages || [];
-      updateData.amenities = JSON.parse(req.body.amenities).map((a, i) => ({
+    // =====================
+    // AMENITIES
+    // =====================
+    const amenitiesData = safeParse(req.body.amenities);
+    const amenityImages = req.files?.amenityImages || [];
+
+    if (amenitiesData.length) {
+      updateData.amenities = amenitiesData.map((a, i) => ({
         amenityName: a.amenityName,
-        amenityImage: amenityImages[i]?.path || a.amenityImage,
+        amenityImage: amenityImages[i]?.path || a.amenityImage || "",
       }));
     }
 
-    // Gallery
-    if (req.body.gallery) {
-      const galleryImages = req.files?.galleryImages || [];
-      updateData.gallery = JSON.parse(req.body.gallery).map((g, i) => ({
+    // =====================
+    // GALLERY
+    // =====================
+    const galleryData = safeParse(req.body.gallery);
+    const galleryImages = req.files?.galleryImages || [];
+
+    if (galleryData.length) {
+      updateData.gallery = galleryData.map((g, i) => ({
         galleryName: g.galleryName,
-        galleryImage: galleryImages[i]?.path || g.galleryImage,
+        galleryImage: galleryImages[i]?.path || g.galleryImage || "",
       }));
     }
 
-    if (req.body.aboutBooking)
-      updateData.aboutBooking = JSON.parse(req.body.aboutBooking);
+    // =====================
+    // Q&A
+    // =====================
+    if (req.body.aboutBooking) {
+      updateData.aboutBooking = safeParse(req.body.aboutBooking);
+    }
 
-    if (req.body.requirements)
-      updateData.requirements = JSON.parse(req.body.requirements);
+    if (req.body.requirements) {
+      updateData.requirements = safeParse(req.body.requirements);
+    }
 
+    // =====================
+    // UPDATE
+    // =====================
     const updated = await Accommodation.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
 
-    if (!updated)
+    if (!updated) {
       return res.status(404).json({ message: "Accommodation not found" });
+    }
 
     res.json({
       message: "✅ Accommodation updated successfully",
       accommodation: updated,
     });
   } catch (err) {
+    console.error("UPDATE ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };
 
 
-// ✅ GET all accommodations
+
+// export const updateAccommodation = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updateData = {};
+
+//     // =====================
+//     // BASIC TEXT FIELDS
+//     // =====================
+//     const fields = [
+//       "bannerTitle",
+//       "bannerSubtitle",
+//       "bannerDescription",
+//       "overviewTitle",
+//       "overviewSubtitle",
+//       "overviewDescription",
+//       "destination",
+//       "subdestination",
+//       "name",
+//       "location",
+//       "pricePerPerson",
+//       "nightsStay",
+//       "accommodationType",
+//       "checkIn",
+//       "checkOut",
+//     ];
+
+//     fields.forEach((field) => {
+//       if (req.body[field] !== undefined) {
+//         updateData[field] = req.body[field];
+//       }
+//     });
+
+//     // =====================
+//     // IMAGES
+//     // =====================
+//     if (req.files?.bannerImages?.length) {
+//       updateData.bannerImages = req.files.bannerImages.map((f) => f.path);
+//     }
+
+//     if (req.files?.landingImage?.length) {
+//       updateData.landingImage = req.files.landingImage[0].path;
+//     }
+
+//     // =====================
+//     // AMENITIES
+//     // =====================
+//     // const amenitiesData = safeJSON(req.body.amenities);
+//     const amenitiesData = safeParse(req.body.amenities);
+//     const amenityImages = req.files?.amenityImages || [];
+
+//     if (amenitiesData.length) {
+//       updateData.amenities = amenitiesData.map((a, i) => ({
+//         amenityName: a.amenityName,
+//         amenityImage: amenityImages[i]?.path || a.amenityImage || "",
+//       }));
+//     }
+
+//     // =====================
+//     // GALLERY
+//     // =====================
+//     // const galleryData = safeJSON(req.body.gallery);
+//     const galleryData = safeParse(req.body.gallery);
+//     const galleryImages = req.files?.galleryImages || [];
+
+//     if (galleryData.length) {
+//       updateData.gallery = galleryData.map((g, i) => ({
+//         galleryName: g.galleryName,
+//         galleryImage: galleryImages[i]?.path || g.galleryImage || "",
+//       }));
+//     }
+
+//     // =====================
+//     // Q&A
+//     // =====================
+//     if (req.body.aboutBooking) {
+//       // updateData.aboutBooking = safeJSON(req.body.aboutBooking);
+//       updateData.aboutBooking = safeParse(req.body.aboutBooking);
+//     }
+
+//     if (req.body.requirements) {
+//       // updateData.requirements = safeJSON(req.body.requirements);
+//       updateData.requirements = safeParse(req.body.requirements);
+//     }
+
+//     // =====================
+//     // UPDATE
+//     // =====================
+//     const updated = await Accommodation.findByIdAndUpdate(id, updateData, {
+//       new: true,
+//       runValidators: true,
+//     });
+
+//     if (!updated) {
+//       return res.status(404).json({ message: "Accommodation not found" });
+//     }
+
+//     res.json({
+//       message: "✅ Accommodation updated successfully",
+//       accommodation: updated,
+//     });
+//   } catch (err) {
+//     console.error("UPDATE ERROR:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const getAccommodations = async (req, res) => {
   try {
     const { destination, subdestination } = req.query;
@@ -420,3 +684,32 @@ export const deleteAccommodation = async (req, res) => {
   }
 };
 
+// delete aenity
+
+export const deleteAmenityImage = async (req, res) => {
+  const { id, index } = req.params;
+
+  const accommodation = await Accommodation.findById(id);
+  accommodation.amenities.splice(index, 1);
+  await accommodation.save();
+
+  res.json({ message: "Amenity removed" });
+};
+
+//delete gallery
+
+export const deleteGalleryImage = async (req, res) => {
+  const { id, index } = req.params;
+
+  const accommodation = await Accommodation.findById(id);
+  if (!accommodation) {
+    return res.status(404).json({ message: "Accommodation not found" });
+  }
+
+  // Remove gallery item at index
+  accommodation.gallery.splice(index, 1);
+
+  await accommodation.save();
+
+  res.json({ message: "Gallery image removed" });
+};
