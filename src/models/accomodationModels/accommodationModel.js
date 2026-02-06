@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose";
 
 const contentBlockSchema = new mongoose.Schema({
@@ -13,7 +11,13 @@ const qaSchema = new mongoose.Schema({
 });
 
 // ✅ Predefined destinations & subdestinations for dropdowns
-const DESTINATIONS = ["Africa", "Asia", "Europe", "South America", "North America"];
+const DESTINATIONS = [
+  "Africa",
+  "Asia",
+  "Europe",
+  "South America",
+  "North America",
+];
 const SUBDESTINATIONS = {
   Africa: ["Kenya", "Tanzania", "South Africa", "Namibia"],
   Asia: ["Japan", "Thailand", "Vietnam", "India"],
@@ -27,6 +31,7 @@ const accommodationSchema = new mongoose.Schema(
     // Landing
     bannerImage: { type: String },
     bannerTitle: { type: String },
+    bannerSubtitle:{ type:String},
     bannerDescription: { type: String },
 
     // Overview
@@ -39,26 +44,37 @@ const accommodationSchema = new mongoose.Schema(
     subdestination: { type: String, required: true },
 
     // Accommodation Info
-    name: { type: String, required: true },
-    location: { type: String, required: true },
-    pricePerPerson: { type: Number, required: true },
-    nightsStay: { type: Number, required: true },
-    accommodationType: { type: String, required: true },
+    name: { type: String },
+    location: { type: String },
+    pricePerPerson: { type: String  },
+    nightsStay: { type: String },
+    accommodationType: { type: String },
     checkIn: { type: String },
     checkOut: { type: String },
 
     // Media
     bannerImages: [{ type: String }],
-    amenities: [{ type: String }],
+    amenities: [
+      {
+        amenityName: { type: String },
+        amenityImage: { type: String },
+      },
+    ], // change Iminity section
+
+    landingImage:{type:String},  // added it new
 
     // Gallery
     galleryDescription: { type: String },
-    galleryImages: [
-      {
-        url: String,
-        name: String,
-      },
-    ],
+    // galleryImages: [
+    //   {
+    //     url: String,
+    //     name: String,
+    //   },
+    // ],
+    gallery:[{
+      galleryName:{ type: String },
+      galleryImage:{type:String},
+    }],
 
     // Sections
     aboutBooking: [qaSchema],
