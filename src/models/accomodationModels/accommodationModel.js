@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
+
 
 const contentBlockSchema = new mongoose.Schema({
   type: { type: String, enum: ["header", "paragraph", "list"], required: true },
@@ -28,6 +30,13 @@ const SUBDESTINATIONS = {
 
 const accommodationSchema = new mongoose.Schema(
   {
+    slug: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+
+
     // Landing
     bannerImage: { type: String },
     bannerTitle: { type: String },
@@ -88,5 +97,48 @@ accommodationSchema.path("subdestination").validate(function (value) {
   const validSubs = SUBDESTINATIONS[this.destination] || [];
   return validSubs.includes(value);
 }, "Invalid subdestination for selected destination");
+
+/* ================= CREATE SLUG ================= */
+accommodationSchema.pre("save", async function (next) {
+  if (!this.isModified("name")) return next();
+
+  const baseSlug = slugify(this.name, { lower: true, strict: true });
+  let slug = baseSlug;
+  let count = 1;
+
+  while (
+    await mongoose.models.Accommodation.findOne({
+      slug,
+      _id: { $ne: this._id },
+    })
+  ) {
+    slug = `${baseSlug}-${count++}`;
+  }
+
+  this.slug = slug;
+  next();
+});
+
+/* ================= UPDATE SLUG ================= */
+accommodationSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate();
+  if (!update?.name) return next();
+
+  const baseSlug = slugify(update.name, { lower: true, strict: true });
+  let slug = baseSlug;
+  let count = 1;
+
+  while (
+    await mongoose.models.Accommodation.findOne({
+      slug,
+      _id: { $ne: this.getQuery()._id },
+    })
+  ) {
+    slug = `${baseSlug}-${count++}`;
+  }
+
+  update.slug = slug;
+  next();
+});
 
 export default mongoose.model("Accommodation", accommodationSchema);

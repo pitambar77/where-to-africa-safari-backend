@@ -663,6 +663,25 @@ export const getAccommodationById = async (req, res) => {
   }
 };
 
+// get Accommodation BySlug
+
+export const getAccommodationBySlug = async (req, res) => {
+  try {
+    const accommodation = await Accommodation.findOne({
+      slug: req.params.slug,
+    });
+
+    if (!accommodation) {
+      return res.status(404).json({ message: "Accommodation not found" });
+    }
+
+    res.json(accommodation);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 // ✅ DELETE Accommodation
 export const deleteAccommodation = async (req, res) => {
   try {

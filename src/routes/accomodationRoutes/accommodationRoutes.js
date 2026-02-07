@@ -59,6 +59,7 @@ import upload from "../../middleware/upload.js";
 import {
   createAccommodation,
   getAccommodations,
+  getAccommodationBySlug,
   getAccommodationById,
   updateAccommodation,
   deleteAccommodation,
@@ -94,6 +95,8 @@ router.put(
 
 // READ
 router.get("/", getAccommodations);
+router.get("/slug/:slug", getAccommodationBySlug);
+
 router.get("/:id", getAccommodationById);
 
 // DELETE
