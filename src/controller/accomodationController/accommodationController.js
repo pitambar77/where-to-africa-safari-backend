@@ -163,15 +163,40 @@ export const updateAccommodation = async (req, res) => {
     // =====================
     // AMENITIES
     // =====================
-    const amenitiesData = safeParse(req.body.amenities);
-    const amenityImages = req.files?.amenityImages || [];
+    // const amenitiesData = safeParse(req.body.amenities);
+    // const amenityImages = req.files?.amenityImages || [];
 
-    if (amenitiesData.length) {
-      updateData.amenities = amenitiesData.map((a, i) => ({
-        amenityName: a.amenityName,
-        amenityImage: amenityImages[i]?.path || a.amenityImage || "",
-      }));
+    // if (amenitiesData.length) {
+    //   updateData.amenities = amenitiesData.map((a, i) => ({
+    //     amenityName: a.amenityName,
+    //     amenityImage: amenityImages[i]?.path || a.amenityImage || "",
+    //   }));
+    // }
+
+    // =====================
+// AMENITIES (FIXED)
+// =====================
+const amenitiesData = safeParse(req.body.amenities);
+const amenityImages = req.files?.amenityImages || [];
+
+if (amenitiesData.length) {
+  let fileIndex = 0; // 🔥 important
+
+  updateData.amenities = amenitiesData.map((a, index) => {
+    let image = a.amenityImage || "";
+
+    if (a.hasNewImage) {
+      image = amenityImages[fileIndex]?.path || image;
+      fileIndex++; // 🔥 consume next uploaded file
     }
+
+    return {
+      amenityName: a.amenityName,
+      amenityImage: image,
+    };
+  });
+}
+
 
     // =====================
     // GALLERY

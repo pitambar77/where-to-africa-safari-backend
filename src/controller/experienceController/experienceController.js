@@ -10,7 +10,6 @@
 //   return `${folder}/${filename.split(".")[0]}`;
 // };
 
-
 // export const createExperience = async (req, res) => {
 //   try {
 //     const data = JSON.parse(req.body.data);
@@ -58,7 +57,6 @@
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
-
 
 // // ✅ GET ALL EXPERIENCES
 // export const getAllExperiences = async (req, res) => {
@@ -143,7 +141,6 @@
 // //   await exp.save();
 // // }
 
-
 // //     // ✅ Highlight images
 // //     // if (req.files?.highlightImages?.length) {
 // //     //   exp.highlights.forEach(async (h, i) => {
@@ -181,7 +178,6 @@
 
 // //   await exp.save();
 // // }
-
 
 // //     // ✅ Merge other fields (text, titles, etc.)
 // //     const updated = await Experience.findByIdAndUpdate(id, { $set: data }, { new: true });
@@ -270,8 +266,6 @@
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
-
-
 
 // export const deleteExperience = async (req, res) => {
 //   try {
@@ -365,7 +359,6 @@
 //   }
 // };
 
-
 // controllers/experienceController.js
 import Experience from "../models/Experience.js";
 import Destination from "../models/Destination.js";
@@ -413,14 +406,19 @@ export const createExperience = async (req, res, next) => {
 
     // Map galleryImages
     if (req.files && req.files.galleryImages) {
-      exp.gallery.images = req.files.galleryImages.map((f) => ({ name: f.originalname || "", image: f.path }));
+      exp.gallery.images = req.files.galleryImages.map((f) => ({
+        name: f.originalname || "",
+        image: f.path,
+      }));
     }
 
     // Map highlights images (pair by index)
     if (req.files && req.files.highlightsImages) {
       exp.highlights = exp.highlights.map((h, idx) => ({
         ...h,
-        image: req.files.highlightsImages[idx] ? req.files.highlightsImages[idx].path : h.image || "",
+        image: req.files.highlightsImages[idx]
+          ? req.files.highlightsImages[idx].path
+          : h.image || "",
       }));
     }
 
@@ -428,7 +426,9 @@ export const createExperience = async (req, res, next) => {
     if (req.files && req.files.gameDriveImages) {
       exp.gameDrives = exp.gameDrives.map((g, idx) => ({
         ...g,
-        image: req.files.gameDriveImages[idx] ? req.files.gameDriveImages[idx].path : g.image || "",
+        image: req.files.gameDriveImages[idx]
+          ? req.files.gameDriveImages[idx].path
+          : g.image || "",
       }));
     }
 
@@ -436,7 +436,9 @@ export const createExperience = async (req, res, next) => {
 
     // optionally attach experience to destination
     if (destinationId) {
-      await Destination.findByIdAndUpdate(destinationId, { $push: { experience: exp._id } });
+      await Destination.findByIdAndUpdate(destinationId, {
+        $push: { experience: exp._id },
+      });
     }
 
     res.status(201).json(exp);
@@ -464,48 +466,179 @@ export const getExperienceById = async (req, res, next) => {
   }
 };
 
+// export const updateExperience = async (req, res, next) => {
+//   try {
+//     const exp = await Experience.findById(req.params.id);
+//     if (!exp) return res.status(404).json({ message: "Experience not found" });
+
+//     // simple fields
+//     const updatable = [
+//       "bannerTitle",
+//       "bannerDescription",
+//       "experienceInfo",
+//       "overview",
+//       "includes",
+//       "gameDrives",
+//       "highlights",
+//       "gallery",
+//     ];
+//     updatable.forEach((k) => {
+//       if (req.body[k]) {
+//         exp[k] =
+//           typeof req.body[k] === "string"
+//             ? JSON.parse(req.body[k])
+//             : req.body[k];
+//       }
+//     });
+
+//     if (req.files && req.files.bannerImage && req.files.bannerImage[0]) {
+//       // TODO: delete previous banner using stored publicId if available
+//       exp.bannerImage = req.files.bannerImage[0].path;
+//     }
+
+//     if (req.files && req.files.galleryImages) {
+//       exp.gallery.images = req.files.galleryImages.map((f) => ({
+//         name: f.originalname || "",
+//         image: f.path,
+//       }));
+//     }
+
+//     // if (req.files && req.files.highlightsImages) {
+//     //   exp.highlights = exp.highlights.map((h, idx) => ({
+//     //     ...h,
+//     //     image: req.files.highlightsImages[idx] ? req.files.highlightsImages[idx].path : h.image || "",
+//     //   }));
+//     // }
+
+//     // if (req.files?.highlightsImages) {
+//     //   exp.highlights = exp.highlights.map((h, idx) => ({
+//     //     ...h,
+//     //     image: req.files.highlightsImages[idx]
+//     //       ? req.files.highlightsImages[idx].path
+//     //       : h.image, // KEEP existing URL
+//     //   }));
+//     // }
+
+// if (req.files?.highlightsImages) {
+//   let imgIdx = 0;
+
+//   exp.highlights = exp.highlights.map((h) => {
+//     if (h.hasNewImage && req.files.highlightsImages[imgIdx]) {
+//       return {
+//         ...h,
+//         image: req.files.highlightsImages[imgIdx++].path,
+//       };
+//     }
+//     return h;
+//   });
+// }
+
+
+//     // if (req.files && req.files.gameDriveImages) {
+//     //   exp.gameDrives = exp.gameDrives.map((g, idx) => ({
+//     //     ...g,
+//     //     image: req.files.gameDriveImages[idx] ? req.files.gameDriveImages[idx].path : g.image || "",
+//     //   }));
+//     // }
+
+//     if (req.files?.gameDriveImages) {
+//       exp.gameDrives = exp.gameDrives.map((g, idx) => ({
+//         ...g,
+//         image: req.files.gameDriveImages[idx]
+//           ? req.files.gameDriveImages[idx].path
+//           : g.image,
+//       }));
+//     }
+
+//     await exp.save();
+//     res.json(exp);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+
 export const updateExperience = async (req, res, next) => {
   try {
     const exp = await Experience.findById(req.params.id);
     if (!exp) return res.status(404).json({ message: "Experience not found" });
 
-    // simple fields
-    const updatable = [
-      "bannerTitle",
-      "bannerDescription",
-      "experienceInfo",
-      "overview",
-      "includes",
-      "gameDrives",
-      "highlights",
-      "gallery",
-    ];
-    updatable.forEach((k) => {
-      if (req.body[k]) {
-        exp[k] = typeof req.body[k] === "string" ? JSON.parse(req.body[k]) : req.body[k];
-      }
-    });
+    // ----------------------------
+    // 1. SIMPLE FIELDS
+    // ----------------------------
+    if (req.body.bannerTitle) exp.bannerTitle = req.body.bannerTitle;
+    if (req.body.bannerDescription)
+      exp.bannerDescription = req.body.bannerDescription;
 
-    if (req.files && req.files.bannerImage && req.files.bannerImage[0]) {
-      // TODO: delete previous banner using stored publicId if available
+    if (req.body.experienceInfo)
+      exp.experienceInfo = JSON.parse(req.body.experienceInfo);
+
+    if (req.body.overview)
+      exp.overview = JSON.parse(req.body.overview);
+
+    if (req.body.includes)
+      exp.includes = JSON.parse(req.body.includes);
+
+    if (req.body.gallery)
+      exp.gallery = JSON.parse(req.body.gallery);
+
+    if (req.body.gameDrives)
+      exp.gameDrives = JSON.parse(req.body.gameDrives);
+
+    // ----------------------------
+    // 2. HIGHLIGHTS (SPECIAL CASE)
+    // ----------------------------
+    let parsedHighlights = exp.highlights;
+
+    if (req.body.highlights) {
+      parsedHighlights = JSON.parse(req.body.highlights);
+    }
+
+    // Apply uploaded highlight images
+    if (req.files?.highlightsImages) {
+      let imgIdx = 0;
+
+      parsedHighlights.forEach((h) => {
+        if (h.hasNewImage && req.files.highlightsImages[imgIdx]) {
+          h.image = req.files.highlightsImages[imgIdx++].path;
+        }
+      });
+    }
+
+    // Remove temporary flag
+    exp.highlights = parsedHighlights.map(({ hasNewImage, ...rest }) => rest);
+
+    // ----------------------------
+    // 3. GAME DRIVE IMAGES
+    // ----------------------------
+    if (req.files?.gameDriveImages) {
+      let imgIdx = 0;
+
+      exp.gameDrives = exp.gameDrives.map((g) => {
+        if (req.files.gameDriveImages[imgIdx]) {
+          return {
+            ...g,
+            image: req.files.gameDriveImages[imgIdx++].path,
+          };
+        }
+        return g;
+      });
+    }
+
+    // ----------------------------
+    // 4. BANNER IMAGE
+    // ----------------------------
+    if (req.files?.bannerImage?.[0]) {
       exp.bannerImage = req.files.bannerImage[0].path;
     }
 
-    if (req.files && req.files.galleryImages) {
-      exp.gallery.images = req.files.galleryImages.map((f) => ({ name: f.originalname || "", image: f.path }));
-    }
-
-    if (req.files && req.files.highlightsImages) {
-      exp.highlights = exp.highlights.map((h, idx) => ({
-        ...h,
-        image: req.files.highlightsImages[idx] ? req.files.highlightsImages[idx].path : h.image || "",
-      }));
-    }
-
-    if (req.files && req.files.gameDriveImages) {
-      exp.gameDrives = exp.gameDrives.map((g, idx) => ({
-        ...g,
-        image: req.files.gameDriveImages[idx] ? req.files.gameDriveImages[idx].path : g.image || "",
+    // ----------------------------
+    // 5. GALLERY IMAGES
+    // ----------------------------
+    if (req.files?.galleryImages) {
+      exp.gallery.images = req.files.galleryImages.map((f) => ({
+        name: f.originalname || "",
+        image: f.path,
       }));
     }
 
@@ -516,6 +649,7 @@ export const updateExperience = async (req, res, next) => {
   }
 };
 
+
 export const deleteExperience = async (req, res, next) => {
   try {
     const exp = await Experience.findById(req.params.id);
@@ -525,7 +659,10 @@ export const deleteExperience = async (req, res, next) => {
     // (we don't store publicId in current model, so skip.)
 
     // remove experience reference from destination(s) if any - this requires scanning Destinations that reference it
-    await Destination.updateMany({ experience: exp._id }, { $pull: { experience: exp._id } });
+    await Destination.updateMany(
+      { experience: exp._id },
+      { $pull: { experience: exp._id } }
+    );
 
     await exp.remove();
     res.json({ message: "Experience deleted" });
@@ -533,6 +670,3 @@ export const deleteExperience = async (req, res, next) => {
     next(err);
   }
 };
-
-
-

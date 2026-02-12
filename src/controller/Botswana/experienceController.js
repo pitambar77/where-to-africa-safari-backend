@@ -47,17 +47,16 @@ export const createExperience = async (req, res) => {
     }
 
     // ✅ Parse includes + includeIcons
-let parsedIncludes = [];
-if (includes) {
-  const includeData = JSON.parse(includes);
-  const includeIcons = req.files?.includeIcons?.map(f => f.path) || [];
+    let parsedIncludes = [];
+    if (includes) {
+      const includeData = JSON.parse(includes);
+      const includeIcons = req.files?.includeIcons?.map((f) => f.path) || [];
 
-  parsedIncludes = includeData.map((inc, index) => ({
-    name: inc.name,
-    icon: includeIcons[index] || null,
-  }));
-}
-
+      parsedIncludes = includeData.map((inc, index) => ({
+        name: inc.name,
+        icon: includeIcons[index] || null,
+      }));
+    }
 
     // ✅ Create Experience document
     const experience = await Experience.create({
@@ -233,24 +232,61 @@ export const updateExperience = async (req, res) => {
     //   existingExperience.includes = JSON.parse(req.body.includes);
 
     if (req.body.includes) {
-  const incomingIncludes = JSON.parse(req.body.includes);
-  const includeIcons = req.files?.includeIcons?.map((f) => f.path) || [];
+      const incomingIncludes = JSON.parse(req.body.includes);
+      const includeIcons = req.files?.includeIcons?.map((f) => f.path) || [];
 
-  existingExperience.includes = incomingIncludes.map((inc, index) => ({
-    name: inc.name,
-    icon:
-      includeIcons[index] ||
-      existingExperience.includes[index]?.icon || // ✅ KEEP OLD ICON
-      null,
-  }));
-}
-
+      existingExperience.includes = incomingIncludes.map((inc, index) => ({
+        name: inc.name,
+        icon:
+          includeIcons[index] ||
+          existingExperience.includes[index]?.icon || // ✅ KEEP OLD ICON
+          null,
+      }));
+    }
 
     if (req.body.gameDrives)
       existingExperience.gameDrives = JSON.parse(req.body.gameDrives);
 
-    if (req.body.highlights)
-      existingExperience.highlights = JSON.parse(req.body.highlights);
+    // if (req.body.highlights)
+    //   existingExperience.highlights = JSON.parse(req.body.highlights);
+
+    // if (req.body.highlights) {
+    //   const incomingHighlights = JSON.parse(req.body.highlights);
+    //   const highlightImages =
+    //     req.files?.highlightImages?.map((f) => f.path) || [];
+
+    //   let imageIndex = 0;
+
+    //   existingExperience.highlights = incomingHighlights.map((h, index) => ({
+    //     name: h.name,
+    //     description: h.description,
+    //     image: highlightImages[imageIndex]
+    //       ? highlightImages[imageIndex++] // ✅ new uploaded image
+    //       : existingExperience.highlights[index]?.image || null, // ✅ keep old
+    //   }));
+    // }
+
+    if (req.body.highlights) {
+  const incomingHighlights = JSON.parse(req.body.highlights);
+  const highlightImages = req.files?.highlightImages?.map(f => f.path) || [];
+
+  let fileIndex = 0;
+
+  existingExperience.highlights = incomingHighlights.map((h, index) => {
+    let image = existingExperience.highlights[index]?.image || null;
+
+    if (h.hasNewImage) {
+      image = highlightImages[fileIndex++] || null;
+    }
+
+    return {
+      name: h.name,
+      description: h.description,
+      image,
+    };
+  });
+}
+
 
     if (req.body.bannerTitle)
       existingExperience.bannerTitle = req.body.bannerTitle;
@@ -271,7 +307,6 @@ export const updateExperience = async (req, res) => {
   }
 };
 
-
 // ✅ DELETE Experience (unlink from destination region)
 export const deleteExperience = async (req, res) => {
   try {
@@ -288,10 +323,9 @@ export const deleteExperience = async (req, res) => {
     // );
 
     await Destination.updateMany(
-  { "regions.experiences": id },
-  { $pull: { "regions.$[].experiences": id } }
-);
-
+      { "regions.experiences": id },
+      { $pull: { "regions.$[].experiences": id } }
+    );
 
     res.json({ message: "Experience deleted successfully" });
   } catch (error) {
