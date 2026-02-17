@@ -105,6 +105,27 @@ export const getAllExperiences = async (req, res) => {
   }
 };
 
+// ✅ GET Single Experience by Slug
+export const getExperienceBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const experience = await Experience.findOne({ slug }).populate({
+      path: "destinationId",
+      select: "name slug hero",
+    });
+
+    if (!experience) {
+      return res.status(404).json({ message: "Experience not found" });
+    }
+
+    res.json(experience);
+  } catch (error) {
+    console.error("Error fetching experience by slug:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // ✅ GET Single Experience by ID
 export const getExperienceById = async (req, res) => {
   try {
@@ -267,26 +288,26 @@ export const updateExperience = async (req, res) => {
     // }
 
     if (req.body.highlights) {
-  const incomingHighlights = JSON.parse(req.body.highlights);
-  const highlightImages = req.files?.highlightImages?.map(f => f.path) || [];
+      const incomingHighlights = JSON.parse(req.body.highlights);
+      const highlightImages =
+        req.files?.highlightImages?.map((f) => f.path) || [];
 
-  let fileIndex = 0;
+      let fileIndex = 0;
 
-  existingExperience.highlights = incomingHighlights.map((h, index) => {
-    let image = existingExperience.highlights[index]?.image || null;
+      existingExperience.highlights = incomingHighlights.map((h, index) => {
+        let image = existingExperience.highlights[index]?.image || null;
 
-    if (h.hasNewImage) {
-      image = highlightImages[fileIndex++] || null;
+        if (h.hasNewImage) {
+          image = highlightImages[fileIndex++] || null;
+        }
+
+        return {
+          name: h.name,
+          description: h.description,
+          image,
+        };
+      });
     }
-
-    return {
-      name: h.name,
-      description: h.description,
-      image,
-    };
-  });
-}
-
 
     if (req.body.bannerTitle)
       existingExperience.bannerTitle = req.body.bannerTitle;

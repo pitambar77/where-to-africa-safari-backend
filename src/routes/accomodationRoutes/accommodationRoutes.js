@@ -95,6 +95,7 @@ router.put(
 
 // READ
 router.get("/", getAccommodations);
+
 router.get("/slug/:slug", getAccommodationBySlug);
 
 router.get("/:id", getAccommodationById);

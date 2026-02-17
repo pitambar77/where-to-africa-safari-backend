@@ -7,6 +7,7 @@ import {
   getAllExperiences,
   updateExperience,
   deleteExperience,
+  getExperienceBySlug,
   getExperienceById
 } from "../controller/Botswana/experienceController.js";
 
@@ -25,6 +26,8 @@ createExperience
 );
 
 router.get("/", getAllExperiences);
+router.get("/slug/:slug", getExperienceBySlug);
+
 router.get("/:id", getExperienceById); // 👈 Required for frontend
 router.put(
   "/:id",

@@ -1,167 +1,11 @@
-// import Destination from "../../models/Botswana/Destination.js";
-// import Trip from "../../models/Botswana/Trip.js";
-// import Experience from "../../models/Botswana/Experience.js";
-// import Accommodation from "../../models/accomodationModels/accommodationModel.js";
-// import { deleteFromCloudinary } from "../../utils/cloudinaryHelper.js";
 
-// // ✅ Create destination
-// export const createDestination = async (req, res, next) => {
-//   try {
-//     const { name, slug } = req.body;
-//     let hero = req.body.hero ? JSON.parse(req.body.hero) : {};
-//     let regions = req.body.regions ? JSON.parse(req.body.regions) : [];
-
-//     if (req.files?.bannerImage?.[0]) hero.bannerImage = req.files.bannerImage[0].path;
-
-//     if (req.files?.regionImages) {
-//       regions = regions.map((r, i) => ({
-//         ...r,
-//         image: req.files.regionImages[i]?.path || r.image || "",
-//       }));
-//     }
-
-//     const destination = new Destination({ name, slug, hero, regions });
-//     await destination.save();
-
-//     res.status(201).json(destination);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // ✅ Get all destinations (with regions & their linked items)
-// export const getAllDestinations = async (req, res, next) => {
-//   try {
-//     const destinations = await Destination.find()
-//       .populate({
-//         path: "regions.trips",
-//         model: Trip,
-//       })
-//       .populate({
-//         path: "regions.experiences",
-//         model: Experience,
-//       })
-//       .populate({
-//         path: "regions.accommodations",
-//         model: Accommodation,
-//       })
-//       .sort({ createdAt: -1 });
-
-//     res.json(destinations);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // ✅ Get destination by slug (with nested data)
-// export const getDestinationBySlug = async (req, res, next) => {
-//   try {
-//     const dest = await Destination.findOne({ slug: req.params.slug })
-//       .populate({
-//         path: "regions.trips",
-//         model: Trip,
-//       })
-//       .populate({
-//         path: "regions.experiences",
-//         model: Experience,
-//       })
-//       .populate({
-//         path: "regions.accommodations",
-//         model: Accommodation,
-//       });
-
-//     if (!dest) return res.status(404).json({ message: "Destination not found" });
-
-//     res.json(dest);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // ✅ Get specific region by slug (within a destination)
-// export const getRegionBySlug = async (req, res, next) => {
-//   try {
-//     const { destinationSlug, regionSlug } = req.params;
-
-//     const destination = await Destination.findOne({ slug: destinationSlug })
-//       .populate({
-//         path: "regions.trips",
-//         model: Trip,
-//       })
-//       .populate({
-//         path: "regions.experiences",
-//         model: Experience,
-//       })
-//       .populate({
-//         path: "regions.accommodations",
-//         model: Accommodation,
-//       });
-
-//     if (!destination) return res.status(404).json({ message: "Destination not found" });
-
-//     const region = destination.regions.find((r) => r.slug === regionSlug);
-//     if (!region) return res.status(404).json({ message: "Region not found" });
-
-//     res.json(region);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // ✅ Update destination (including regions and hero)
-// export const updateDestination = async (req, res, next) => {
-//   try {
-//     const dest = await Destination.findById(req.params.id);
-//     if (!dest) return res.status(404).json({ message: "Destination not found" });
-
-//     if (req.body.name) dest.name = req.body.name;
-//     if (req.body.slug) dest.slug = req.body.slug;
-
-//     if (req.body.hero) {
-//       const hero = typeof req.body.hero === "string" ? JSON.parse(req.body.hero) : req.body.hero;
-//       dest.hero = { ...dest.hero, ...hero };
-//     }
-
-//     if (req.files?.bannerImage?.[0]) {
-//       dest.hero.bannerImage = req.files.bannerImage[0].path;
-//     }
-
-//     if (req.body.regions) {
-//       let regions = typeof req.body.regions === "string" ? JSON.parse(req.body.regions) : req.body.regions;
-//       if (req.files?.regionImages) {
-//         regions = regions.map((r, idx) => ({
-//           ...r,
-//           image: req.files.regionImages[idx]?.path || r.image || "",
-//         }));
-//       }
-//       dest.regions = regions;
-//     }
-
-//     await dest.save();
-//     res.json(dest);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // ✅ Delete destination
-// export const deleteDestination = async (req, res, next) => {
-//   try {
-//     const dest = await Destination.findById(req.params.id);
-//     if (!dest) return res.status(404).json({ message: "Destination not found" });
-
-//     await dest.remove();
-//     res.json({ message: "Destination deleted successfully" });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 
 import Destination from "../../models/Botswana/Destination.js";
 import Trip from "../../models/Botswana/Trip.js";
 import Experience from "../../models/Botswana/Experience.js";
 import Accommodation from "../../models/accomodationModels/accommodationModel.js";
 import { deleteFromCloudinary } from "../../utils/cloudinaryHelper.js";
+import { slugify } from "../../utils/slugify.js";
 
 // const mapImagesByIndex = (items, files, key = "image") => {
 //   if (!files) return items;
@@ -192,7 +36,8 @@ const mapImagesBySlug = (regions, files) => {
 // ✅ Create destination
 export const createDestination = async (req, res, next) => {
   try {
-    const { name, slug } = req.body;
+    const { name } = req.body;
+    const slug = slugify(name);
 
     const hero = req.body.hero ? JSON.parse(req.body.hero) : {};
     let regions = req.body.regions ? JSON.parse(req.body.regions) : [];
@@ -373,8 +218,14 @@ export const updateDestination = async (req, res, next) => {
     if (!dest)
       return res.status(404).json({ message: "Destination not found" });
 
-    if (req.body.name) dest.name = req.body.name;
-    if (req.body.slug) dest.slug = req.body.slug;
+    // if (req.body.name) dest.name = req.body.name;
+    // if (req.body.slug) dest.slug = req.body.slug;
+
+    if (req.body.name) {
+  dest.name = req.body.name;
+  dest.slug = slugify(req.body.name);
+}
+
 
     /* Hero update */
     if (req.body.hero) {
@@ -491,39 +342,75 @@ if (thingsTodoFiles?.length) {
 };
 
 // ✅ Delete destination
+// export const deleteDestination = async (req, res, next) => {
+//   try {
+//     const dest = await Destination.findById(req.params.id);
+//     if (!dest)
+//       return res.status(404).json({ message: "Destination not found" });
+
+//     if (dest.hero?.bannerImage)
+//       await deleteFromCloudinary(dest.hero.bannerImage);
+
+//     dest.regions.forEach((region) => {
+//       if (region.image) deleteFromCloudinary(region.image);
+
+//       region.thingstodo?.forEach((todo) => {
+//         todo.section?.forEach((sec) => {
+//           if (sec.image) deleteFromCloudinary(sec.image);
+//         });
+//       });
+//     });
+
+//     dest.regions.forEach((oldRegion) => {
+//   const stillExists = regions.find(
+//     (r) => r.slug === oldRegion.slug
+//   );
+
+//   if (!stillExists && oldRegion.image) {
+//     deleteFromCloudinary(oldRegion.image);
+//   }
+// });
+
+
+//     await dest.deleteOne();
+//     res.json({ message: "Destination deleted successfully" });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 export const deleteDestination = async (req, res, next) => {
   try {
     const dest = await Destination.findById(req.params.id);
     if (!dest)
       return res.status(404).json({ message: "Destination not found" });
 
-    if (dest.hero?.bannerImage)
+    /* Delete hero image */
+    if (dest.hero?.bannerImage) {
       await deleteFromCloudinary(dest.hero.bannerImage);
+    }
 
-    dest.regions.forEach((region) => {
-      if (region.image) deleteFromCloudinary(region.image);
+    /* Delete region images */
+    for (const region of dest.regions) {
+      if (region.image) {
+        await deleteFromCloudinary(region.image);
+      }
 
-      region.thingstodo?.forEach((todo) => {
-        todo.section?.forEach((sec) => {
-          if (sec.image) deleteFromCloudinary(sec.image);
-        });
-      });
-    });
-
-    dest.regions.forEach((oldRegion) => {
-  const stillExists = regions.find(
-    (r) => r.slug === oldRegion.slug
-  );
-
-  if (!stillExists && oldRegion.image) {
-    deleteFromCloudinary(oldRegion.image);
-  }
-});
-
+      for (const todo of region.thingstodo || []) {
+        for (const sec of todo.section || []) {
+          if (sec.image) {
+            await deleteFromCloudinary(sec.image);
+          }
+        }
+      }
+    }
 
     await dest.deleteOne();
+
     res.json({ message: "Destination deleted successfully" });
   } catch (err) {
+    console.error(err);
     next(err);
   }
 };
+

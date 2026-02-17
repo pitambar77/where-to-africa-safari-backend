@@ -12,6 +12,7 @@ import tripRoutes from './routes/tripRoutes.js'
 import experienceRoutes from './routes/experienceRoutes.js'
 // import accommodationRoutes from './routes/accommodationRoutes.js'
 import travelguideRoutes from './routes/travelguideRoutes/travelguideRoutes.js'
+import contactRoutes from './routes/contactRoutes.js'
 
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", travelguideRoutes);
+app.use("/api/contact", contactRoutes);
 
 app.use("/api/accommodation", accommodationRoutes);
 app.use("/api/itinerary", itineraryRoutes);

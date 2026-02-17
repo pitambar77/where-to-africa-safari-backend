@@ -22,7 +22,6 @@
 
 // export default router;
 
-
 // routes/tripRoutes.js
 // import express from "express";
 // import upload from "../middleware/upload.js";
@@ -52,7 +51,6 @@
 // router.delete("/:id", deleteTrip);
 
 // export default router;
-
 
 // import express from "express";
 // import upload from "../middleware/upload.js";
@@ -94,6 +92,7 @@ import upload from "../middleware/upload.js";
 import {
   createTrip,
   getAllTrips,
+  getTripBySlug,
   getTripById,
   updateTrip,
   deleteTrip,
@@ -114,7 +113,7 @@ router.post(
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 10 },
     { name: "itineraryImages", maxCount: 20 }, // ✅ added itinerary image upload
-     { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
+    { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
   ]),
   createTrip
 );
@@ -123,6 +122,8 @@ router.post(
  * ✅ Get All Trips
  */
 router.get("/", getAllTrips);
+
+router.get("/slug/:slug", getTripBySlug);
 
 /**
  * ✅ Get Trip by ID
@@ -139,7 +140,7 @@ router.put(
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 10 },
     { name: "itineraryImages", maxCount: 20 }, // ✅ added itinerary image upload
-   { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
+    { name: "tripHighlightImage", maxCount: 10 }, // ✅ single image only
   ]),
   updateTrip
 );
@@ -150,4 +151,3 @@ router.put(
 router.delete("/:id", deleteTrip);
 
 export default router;
-

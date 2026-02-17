@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { slugify } from "../../utils/slugify.js";
 
 const itineraryItemSchema = new mongoose.Schema({
   day: { type: String, required: true },
@@ -37,6 +38,14 @@ const qaSchema = new mongoose.Schema({
 const tripSchema = new mongoose.Schema({
   destination: { type: mongoose.Schema.Types.ObjectId, ref: "Destination" },
   title: String,
+
+  // ✅ ADD THIS
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+  },
+
   subtitle: String,
   location: String,
   image: String,
@@ -62,5 +71,28 @@ const tripSchema = new mongoose.Schema({
     tripHighlights: [tripHighlightSchema],
 
 }, { timestamps: true });
+
+tripSchema.pre("save", async function (next) {
+  if (!this.isModified("title")) return next(); // Only regenerate if title changes
+
+  if (!this.slug) {
+    let baseSlug = slugify(this.title);
+    let slug = baseSlug;
+    let count = 1;
+
+    const Trip = mongoose.model("Trip");
+
+    // Exclude current document from duplicate check
+    while (await Trip.findOne({ slug, _id: { $ne: this._id } })) {
+      slug = `${baseSlug}-${count}`;
+      count++;
+    }
+
+    this.slug = slug;
+  }
+
+  next();
+});
+
 
 export default mongoose.model("Trip", tripSchema);
