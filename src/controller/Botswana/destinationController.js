@@ -1,19 +1,9 @@
-
-
 import Destination from "../../models/Botswana/Destination.js";
 import Trip from "../../models/Botswana/Trip.js";
 import Experience from "../../models/Botswana/Experience.js";
 import Accommodation from "../../models/accomodationModels/accommodationModel.js";
 import { deleteFromCloudinary } from "../../utils/cloudinaryHelper.js";
 import { slugify } from "../../utils/slugify.js";
-
-// const mapImagesByIndex = (items, files, key = "image") => {
-//   if (!files) return items;
-//   return items.map((item, index) => ({
-//     ...item,
-//     [key]: files[index]?.path || item[key] || "",
-//   }));
-// };
 
 const mapImagesBySlug = (regions, files) => {
   if (!files) return regions;
@@ -43,9 +33,7 @@ export const createDestination = async (req, res, next) => {
     let regions = req.body.regions ? JSON.parse(req.body.regions) : [];
 
     /* Hero image */
-    // if (req.files?.bannerImage?.[0]) {
-    //   hero.bannerImage = req.files.bannerImage[0].path;
-    // }
+
     const bannerFile = req.files?.find((f) => f.fieldname === "bannerImage");
 
     if (bannerFile) {
@@ -53,18 +41,6 @@ export const createDestination = async (req, res, next) => {
     }
 
     /* Region images */
-    // if (req.files?.regionImages) {
-    //   regions = mapImagesByIndex(regions, req.files.regionImages);
-    // }
-
-    /* Region images (mapped by slug) */
-    // if (req.files) {
-    //   const regionImageFiles = req.files.filter((f) =>
-    //     f.fieldname.startsWith("regionImages[")
-    //   );
-
-    //   regions = mapImagesBySlug(regions, regionImageFiles);
-    // }
 
     const regionImageFiles = req.files?.filter((f) =>
       f.fieldname.startsWith("regionImages[")
@@ -73,19 +49,6 @@ export const createDestination = async (req, res, next) => {
     regions = mapImagesBySlug(regions, regionImageFiles);
 
     /* Things To Do images */
-    // if (req.files?.thingsTodoImages) {
-    //   let imgIndex = 0;
-    //   regions = regions.map((region) => ({
-    //     ...region,
-    //     thingstodo: region.thingstodo?.map((todo) => ({
-    //       ...todo,
-    //       section: todo.section?.map((sec) => ({
-    //         ...sec,
-    //         image: req.files.thingsTodoImages[imgIndex++]?.path || sec.image,
-    //       })),
-    //     })),
-    //   }));
-    // }
 
     const thingsTodoFiles = req.files?.filter((f) =>
       f.fieldname.startsWith("thingsTodoImages[")
@@ -222,10 +185,9 @@ export const updateDestination = async (req, res, next) => {
     // if (req.body.slug) dest.slug = req.body.slug;
 
     if (req.body.name) {
-  dest.name = req.body.name;
-  dest.slug = slugify(req.body.name);
-}
-
+      dest.name = req.body.name;
+      dest.slug = slugify(req.body.name);
+    }
 
     /* Hero update */
     if (req.body.hero) {
@@ -239,17 +201,14 @@ export const updateDestination = async (req, res, next) => {
     //   dest.hero.bannerImage = req.files.bannerImage[0].path;
     // }
 
-    const bannerFile = req.files?.find(
-  (f) => f.fieldname === "bannerImage"
-);
+    const bannerFile = req.files?.find((f) => f.fieldname === "bannerImage");
 
-if (bannerFile) {
-  if (dest.hero.bannerImage) {
-    await deleteFromCloudinary(dest.hero.bannerImage);
-  }
-  dest.hero.bannerImage = bannerFile.path;
-}
-
+    if (bannerFile) {
+      if (dest.hero.bannerImage) {
+        await deleteFromCloudinary(dest.hero.bannerImage);
+      }
+      dest.hero.bannerImage = bannerFile.path;
+    }
 
     /* Regions */
     if (req.body.regions) {
@@ -268,51 +227,35 @@ if (bannerFile) {
         regions = mapImagesBySlug(regions, regionImageFiles);
       }
 
-      // if (req.files?.thingsTodoImages) {
-      //   let imgIndex = 0;
-      //   regions = regions.map((region) => ({
-      //     ...region,
-      //     thingstodo: region.thingstodo?.map((todo) => ({
-      //       ...todo,
-      //       section: todo.section?.map((sec) => ({
-      //         ...sec,
-      //         image: req.files.thingsTodoImages[imgIndex++]?.path || sec.image,
-      //       })),
-      //     })),
-      //   }));
-      // }
-
       const thingsTodoFiles = req.files?.filter((f) =>
-  f.fieldname.startsWith("thingsTodoImages[")
-);
+        f.fieldname.startsWith("thingsTodoImages[")
+      );
 
-if (thingsTodoFiles?.length) {
-  const imageMap = {};
+      if (thingsTodoFiles?.length) {
+        const imageMap = {};
 
-  thingsTodoFiles.forEach((file) => {
-    const match = file.fieldname.match(
-      /thingsTodoImages\[(.*)\]\[(\d+)\]\[(\d+)\]/
-    );
-    if (!match) return;
+        thingsTodoFiles.forEach((file) => {
+          const match = file.fieldname.match(
+            /thingsTodoImages\[(.*)\]\[(\d+)\]\[(\d+)\]/
+          );
+          if (!match) return;
 
-    const [, regionSlug, todoIndex, sectionIndex] = match;
+          const [, regionSlug, todoIndex, sectionIndex] = match;
 
-    imageMap[`${regionSlug}-${todoIndex}-${sectionIndex}`] = file.path;
-  });
+          imageMap[`${regionSlug}-${todoIndex}-${sectionIndex}`] = file.path;
+        });
 
-  regions = regions.map((region) => ({
-    ...region,
-    thingstodo: region.thingstodo?.map((todo, tIdx) => ({
-      ...todo,
-      section: todo.section?.map((sec, sIdx) => ({
-        ...sec,
-        image:
-          imageMap[`${region.slug}-${tIdx}-${sIdx}`] || sec.image,
-      })),
-    })),
-  }));
-}
-
+        regions = regions.map((region) => ({
+          ...region,
+          thingstodo: region.thingstodo?.map((todo, tIdx) => ({
+            ...todo,
+            section: todo.section?.map((sec, sIdx) => ({
+              ...sec,
+              image: imageMap[`${region.slug}-${tIdx}-${sIdx}`] || sec.image,
+            })),
+          })),
+        }));
+      }
 
       // dest.regions = regions;
       // dest.regions = regions.map((newRegion) => {
@@ -371,7 +314,6 @@ if (thingsTodoFiles?.length) {
 //   }
 // });
 
-
 //     await dest.deleteOne();
 //     res.json({ message: "Destination deleted successfully" });
 //   } catch (err) {
@@ -413,4 +355,3 @@ export const deleteDestination = async (req, res, next) => {
     next(err);
   }
 };
-

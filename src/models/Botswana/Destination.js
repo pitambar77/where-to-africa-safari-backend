@@ -43,21 +43,21 @@ const contentBlockSchema = new mongoose.Schema({
 });
 
 const whenvisitSchema = new mongoose.Schema({
-    heading:String,
-    months:[
-        {
-            monthname:String,
-            title:String,
-            description:[contentBlockSchema],
-            // image: String, // added image
-            // imagePublicId: String,
-        }
-    ]
-})
+  heading: String,
+  months: [
+    {
+      monthname: String,
+      title: String,
+      description: [contentBlockSchema],
+      // image: String, // added image
+      // imagePublicId: String,
+    },
+  ],
+});
 
 const thingstodoSchema = new mongoose.Schema({
   thinstodoTitle: String,
-  thingstododescription:[contentBlockSchema],
+  thingstododescription: [contentBlockSchema],
 
   section: [
     {
@@ -76,24 +76,23 @@ const regionSchema = new mongoose.Schema({
   description: String,
   subtitle: String,
 
-  level:String,
+  level: String,
 
   facility: String,
-  levelsec:String,
+  levelsec: String,
   highlight: String,
-  levelthird:String,
+  levelthird: String,
   culture: String,
-  levelfourth:String,
+  levelfourth: String,
   days: String,
 
   overviewTitle: String,
   overviewSubTitle: String,
   overviewDescription: String,
 
-  thingstodo:[thingstodoSchema],
+  thingstodo: [thingstodoSchema],
 
-  whenvisit:[whenvisitSchema],
-
+  whenvisit: [whenvisitSchema],
 
   trips: [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
   experiences: [{ type: mongoose.Schema.Types.ObjectId, ref: "Experience" }],
@@ -111,6 +110,9 @@ const destinationSchema = new mongoose.Schema(
       subtitle: String,
       bannerImage: String,
       description: String,
+      overviewTitle: String,
+      overviewSubTitle: String,
+      overviewDescription: String,
     },
     regions: [regionSchema],
   },
