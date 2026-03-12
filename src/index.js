@@ -13,6 +13,7 @@ import experienceRoutes from './routes/experienceRoutes.js'
 // import accommodationRoutes from './routes/accommodationRoutes.js'
 import travelguideRoutes from './routes/travelguideRoutes/travelguideRoutes.js'
 import contactRoutes from './routes/contactRoutes.js'
+import authRoutes from "./routes/authRoutes.js";
 
 
 dotenv.config();
@@ -32,6 +33,8 @@ app.use("/api/destinations", destinationRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/experience", experienceRoutes);
 // app.use("/api/accommodations", accommodationRoutes);
+
+app.use("/api/auth", authRoutes);
 
 connectDB()
 const PORT = process.env.PORT || 8000
