@@ -1,4 +1,3 @@
-
 import Accommodation from "../../models/accomodationModels/accommodationModel.js";
 import Destination from "../../models/Botswana/Destination.js";
 
@@ -51,6 +50,8 @@ export const createAccommodation = async (req, res) => {
       aboutBooking,
       requirements,
       gallery,
+      galleyheading,
+      galleryDescription,
     } = req.body;
 
     // Images
@@ -76,6 +77,8 @@ export const createAccommodation = async (req, res) => {
       : [];
 
     const accommodation = await Accommodation.create({
+      destinationId, // ✅ ADD
+      regionId, // ✅ ADD
       bannerImages,
       landingImage,
       bannerTitle,
@@ -97,6 +100,8 @@ export const createAccommodation = async (req, res) => {
       gallery: parsedGallery,
       aboutBooking: JSON.parse(aboutBooking || "[]"),
       requirements: JSON.parse(requirements || "[]"),
+      galleyheading,
+      galleryDescription,
     });
 
     // Link to destination → region
@@ -134,6 +139,8 @@ export const updateAccommodation = async (req, res) => {
       "overviewDescription",
       "destination",
       "subdestination",
+      "destinationId", // ✅ ADD
+      "regionId", // ✅ ADD
       "name",
       "location",
       "pricePerPerson",
@@ -141,6 +148,8 @@ export const updateAccommodation = async (req, res) => {
       "accommodationType",
       "checkIn",
       "checkOut",
+      "galleyheading",
+      "galleryDescription",
     ];
 
     fields.forEach((field) => {
@@ -174,29 +183,28 @@ export const updateAccommodation = async (req, res) => {
     // }
 
     // =====================
-// AMENITIES (FIXED)
-// =====================
-const amenitiesData = safeParse(req.body.amenities);
-const amenityImages = req.files?.amenityImages || [];
+    // AMENITIES (FIXED)
+    // =====================
+    const amenitiesData = safeParse(req.body.amenities);
+    const amenityImages = req.files?.amenityImages || [];
 
-if (amenitiesData.length) {
-  let fileIndex = 0; // 🔥 important
+    if (amenitiesData.length) {
+      let fileIndex = 0; // 🔥 important
 
-  updateData.amenities = amenitiesData.map((a, index) => {
-    let image = a.amenityImage || "";
+      updateData.amenities = amenitiesData.map((a, index) => {
+        let image = a.amenityImage || "";
 
-    if (a.hasNewImage) {
-      image = amenityImages[fileIndex]?.path || image;
-      fileIndex++; // 🔥 consume next uploaded file
+        if (a.hasNewImage) {
+          image = amenityImages[fileIndex]?.path || image;
+          fileIndex++; // 🔥 consume next uploaded file
+        }
+
+        return {
+          amenityName: a.amenityName,
+          amenityImage: image,
+        };
+      });
     }
-
-    return {
-      amenityName: a.amenityName,
-      amenityImage: image,
-    };
-  });
-}
-
 
     // =====================
     // GALLERY
@@ -244,8 +252,6 @@ if (amenitiesData.length) {
   }
 };
 
-
-
 export const getAccommodations = async (req, res) => {
   try {
     const { destination, subdestination } = req.query;
@@ -291,7 +297,6 @@ export const getAccommodationBySlug = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // ✅ DELETE Accommodation
 export const deleteAccommodation = async (req, res) => {

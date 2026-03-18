@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
 
-
 const contentBlockSchema = new mongoose.Schema({
   type: { type: String, enum: ["header", "paragraph", "list"], required: true },
   content: { type: mongoose.Schema.Types.Mixed, required: true },
@@ -36,11 +35,10 @@ const accommodationSchema = new mongoose.Schema(
       index: true,
     },
 
-
     // Landing
     bannerImage: { type: String },
     bannerTitle: { type: String },
-    bannerSubtitle:{ type:String},
+    bannerSubtitle: { type: String },
     bannerDescription: { type: String },
 
     // Overview
@@ -52,10 +50,20 @@ const accommodationSchema = new mongoose.Schema(
     destination: { type: String, enum: DESTINATIONS, required: true },
     subdestination: { type: String, required: true },
 
+    // ✅ ADD HERE
+    destinationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Destination",
+    },
+
+    regionId: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+
     // Accommodation Info
     name: { type: String },
     location: { type: String },
-    pricePerPerson: { type: String  },
+    pricePerPerson: { type: String },
     nightsStay: { type: String },
     accommodationType: { type: String },
     checkIn: { type: String },
@@ -70,9 +78,10 @@ const accommodationSchema = new mongoose.Schema(
       },
     ], // change Iminity section
 
-    landingImage:{type:String},  // added it new
+    landingImage: { type: String }, // added it new
 
     // Gallery
+    galleyheading: { type: String },
     galleryDescription: { type: String },
     // galleryImages: [
     //   {
@@ -80,10 +89,12 @@ const accommodationSchema = new mongoose.Schema(
     //     name: String,
     //   },
     // ],
-    gallery:[{
-      galleryName:{ type: String },
-      galleryImage:{type:String},
-    }],
+    gallery: [
+      {
+        galleryName: { type: String },
+        galleryImage: { type: String },
+      },
+    ],
 
     // Sections
     aboutBooking: [qaSchema],
