@@ -11,6 +11,9 @@ export const createExperience = async (req, res) => {
       regionId, // ✅ now we use regionId instead of regionSlug
       bannerTitle,
       bannerDescription,
+      bannersubtitle, // NEW
+      highlightheading, // NEW
+      imageheading, // NEW
       experienceInfo,
       overview,
       includes,
@@ -65,6 +68,9 @@ export const createExperience = async (req, res) => {
       bannerImage,
       bannerTitle,
       bannerDescription,
+      bannersubtitle, // NEW
+      highlightheading, // NEW
+      imageheading, // NEW
       experienceInfo: JSON.parse(experienceInfo),
       overview: JSON.parse(overview),
       // includes: JSON.parse(includes),
@@ -314,6 +320,15 @@ export const updateExperience = async (req, res) => {
 
     if (req.body.bannerDescription)
       existingExperience.bannerDescription = req.body.bannerDescription;
+
+    if (req.body.bannersubtitle)
+      existingExperience.bannersubtitle = req.body.bannersubtitle;
+
+    if (req.body.highlightheading)
+      existingExperience.highlightheading = req.body.highlightheading;
+
+    if (req.body.imageheading)
+      existingExperience.imageheading = req.body.imageheading;
 
     // 🔹 STEP 3: Save
     const updatedExperience = await existingExperience.save();

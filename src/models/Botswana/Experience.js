@@ -37,6 +37,7 @@ const experienceSchema = new mongoose.Schema(
     bannerImage: { type: String },
     bannerTitle: { type: String, required: true },
     bannerDescription: { type: String, required: true },
+    bannersubtitle:{type:String}, // new
 
     experienceInfo: {
       days: { type: String },
@@ -53,7 +54,9 @@ const experienceSchema = new mongoose.Schema(
 
     includes: [includeSchema],
     gameDrives: [gameDriveSchema],
+    highlightheading: { type: String }, // new
     highlights: [highlightSchema],
+    imageheading: { type: String }, // new
     gallery: {
       description: { type: String },
       images: [galleryImageSchema],
