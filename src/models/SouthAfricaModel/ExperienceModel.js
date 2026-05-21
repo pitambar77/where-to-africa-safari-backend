@@ -28,6 +28,7 @@ const experienceSchema = new mongoose.Schema(
     bannerImage: { type: String }, // Cloudinary URL
     bannerTitle: { type: String, required: true },
     bannerDescription: { type: String, required: true },
+    bookNowUrl: { type: String }, 
 
     experienceInfo: {
       days: { type: Number, required: true },

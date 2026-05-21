@@ -386,11 +386,13 @@ export const createExperience = async (req, res, next) => {
       highlights,
       gallery,
       destinationId, // optional: to link experience to a destination
+      bookNowUrl,
     } = req.body;
 
     const exp = new Experience({
       bannerTitle,
       bannerDescription,
+      bookNowUrl,
       experienceInfo: experienceInfo ? JSON.parse(experienceInfo) : {},
       overview: overview ? JSON.parse(overview) : {},
       includes: includes ? JSON.parse(includes) : [],
@@ -533,7 +535,6 @@ export const getExperienceById = async (req, res, next) => {
 //   });
 // }
 
-
 //     // if (req.files && req.files.gameDriveImages) {
 //     //   exp.gameDrives = exp.gameDrives.map((g, idx) => ({
 //     //     ...g,
@@ -557,7 +558,6 @@ export const getExperienceById = async (req, res, next) => {
 //   }
 // };
 
-
 export const updateExperience = async (req, res, next) => {
   try {
     const exp = await Experience.findById(req.params.id);
@@ -570,20 +570,21 @@ export const updateExperience = async (req, res, next) => {
     if (req.body.bannerDescription)
       exp.bannerDescription = req.body.bannerDescription;
 
+    // if (req.body.bookNowUrl) {
+    //   exp.bookNowUrl = req.body.bookNowUrl;
+    // }
+
+    exp.bookNowUrl = req.body.bookNowUrl || "";
     if (req.body.experienceInfo)
       exp.experienceInfo = JSON.parse(req.body.experienceInfo);
 
-    if (req.body.overview)
-      exp.overview = JSON.parse(req.body.overview);
+    if (req.body.overview) exp.overview = JSON.parse(req.body.overview);
 
-    if (req.body.includes)
-      exp.includes = JSON.parse(req.body.includes);
+    if (req.body.includes) exp.includes = JSON.parse(req.body.includes);
 
-    if (req.body.gallery)
-      exp.gallery = JSON.parse(req.body.gallery);
+    if (req.body.gallery) exp.gallery = JSON.parse(req.body.gallery);
 
-    if (req.body.gameDrives)
-      exp.gameDrives = JSON.parse(req.body.gameDrives);
+    if (req.body.gameDrives) exp.gameDrives = JSON.parse(req.body.gameDrives);
 
     // ----------------------------
     // 2. HIGHLIGHTS (SPECIAL CASE)
@@ -648,7 +649,6 @@ export const updateExperience = async (req, res, next) => {
     next(err);
   }
 };
-
 
 export const deleteExperience = async (req, res, next) => {
   try {

@@ -41,6 +41,7 @@ const experienceSchema = new mongoose.Schema(
       subTitle: { type: String },
       description: { type: String, required: true },
     },
+    bookNowUrl: { type: String }, 
 
     includes: [includeSchema],
     gameDrives: [gameDriveSchema],

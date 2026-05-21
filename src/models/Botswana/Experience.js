@@ -38,6 +38,7 @@ const experienceSchema = new mongoose.Schema(
     bannerTitle: { type: String, required: true },
     bannerDescription: { type: String, required: true },
     bannersubtitle:{type:String}, // new
+    bookNowUrl: { type: String }, 
 
     experienceInfo: {
       days: { type: String },

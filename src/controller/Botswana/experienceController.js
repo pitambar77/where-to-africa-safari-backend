@@ -20,6 +20,7 @@ export const createExperience = async (req, res) => {
       gameDrives,
       highlights,
       galleryDescription,
+      bookNowUrl,
     } = req.body;
 
     // ✅ Handle uploads
@@ -68,6 +69,7 @@ export const createExperience = async (req, res) => {
       bannerImage,
       bannerTitle,
       bannerDescription,
+      bookNowUrl,
       bannersubtitle, // NEW
       highlightheading, // NEW
       imageheading, // NEW
@@ -329,6 +331,10 @@ export const updateExperience = async (req, res) => {
 
     if (req.body.imageheading)
       existingExperience.imageheading = req.body.imageheading;
+
+    if (req.body.bookNowUrl) {
+      existingExperience.bookNowUrl = req.body.bookNowUrl;
+    }
 
     // 🔹 STEP 3: Save
     const updatedExperience = await existingExperience.save();
