@@ -14,6 +14,14 @@ import experienceRoutes from './routes/experienceRoutes.js'
 import travelguideRoutes from './routes/travelguideRoutes/travelguideRoutes.js'
 import contactRoutes from './routes/contactRoutes.js'
 import authRoutes from "./routes/authRoutes.js";
+import seoRoutes from "./routes/seoRoutes/seoRoutes.js"
+import experiencelandingRoutes from "./routes/experiencelandingRoutes/experiencelandingRoutes.js"
+import itinenarylandingRoutes from "./routes/itinenarylandingRoutes/itinenarylandingRoutes.js"
+import accommodationlandingRoutes from "./routes/accommodationlandingRoutes/accommodationlandingRoutes.js"
+import aboutusRoutes from './routes/aboutusRoutes/aboutusRoutes.js'
+import conservationRoutes from './routes/conservationRoutes/conservationRoutes.js'
+import contactuspageRoutes from './routes/contactuspageRoutes/contactuspageRoutes.js'
+import homeRoutes from './routes/homeRoutes/homeRoutes.js'
 
 
 dotenv.config();
@@ -28,13 +36,26 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/accommodation", accommodationRoutes);
 app.use("/api/itinerary", itineraryRoutes);
 // app.use("/api/experience", experienceRoutes);
+app.use("/api/itinenarylanding", itinenarylandingRoutes);
 
 app.use("/api/destinations", destinationRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/experience", experienceRoutes);
-// app.use("/api/accommodations", accommodationRoutes);
+
+app.use("/api/experiencelanding", experiencelandingRoutes);
+
+app.use("/api/accommodationlanding", accommodationlandingRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/seo", seoRoutes);
+
+
+app.use("/api/aboutus", aboutusRoutes);
+app.use("/api/conservation", conservationRoutes);
+app.use("/api/contactus", contactuspageRoutes);
+app.use("/api/home",homeRoutes)
+
 
 connectDB()
 const PORT = process.env.PORT || 8000

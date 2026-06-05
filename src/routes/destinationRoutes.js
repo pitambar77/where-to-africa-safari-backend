@@ -53,6 +53,7 @@ import {
   deleteDestination,
   getDestinationBySlug,
   getRegionBySlug,
+  getDestinationById,
 } from "../controller/Botswana/destinationController.js";
 
 const router = express.Router();
@@ -68,6 +69,8 @@ router.post(
 router.get("/", getAllDestinations);
 router.get("/slug/:slug", getDestinationBySlug);
 router.get("/:destinationSlug/regions/:regionSlug", getRegionBySlug);
+
+router.get("/:id", getDestinationById);
 
 /* UPDATE */
 router.put(

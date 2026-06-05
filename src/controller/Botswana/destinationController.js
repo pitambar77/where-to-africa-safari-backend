@@ -143,6 +143,35 @@ export const getDestinationBySlug = async (req, res, next) => {
   }
 };
 
+// ✅ Get destination by ID
+export const getDestinationById = async (req, res, next) => {
+  try {
+    const destination = await Destination.findById(req.params.id)
+      .populate({
+        path: "regions.trips",
+        model: Trip,
+      })
+      .populate({
+        path: "regions.experiences",
+        model: Experience,
+      })
+      .populate({
+        path: "regions.accommodations",
+        model: Accommodation,
+      });
+
+    if (!destination) {
+      return res.status(404).json({
+        message: "Destination not found",
+      });
+    }
+
+    res.json(destination);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ✅ Get specific region by slug (within a destination)
 export const getRegionBySlug = async (req, res, next) => {
   try {
