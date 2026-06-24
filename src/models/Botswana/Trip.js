@@ -24,7 +24,6 @@ const tripHighlightSchema = new mongoose.Schema({
   imagePublicId: { type: String },
 });
 
-
 const contentBlockSchema = new mongoose.Schema({
   type: { type: String, enum: ["header", "paragraph", "list"], required: true },
   content: { type: mongoose.Schema.Types.Mixed, required: true },
@@ -35,65 +34,91 @@ const qaSchema = new mongoose.Schema({
   answer: [contentBlockSchema], // multiple answer parts (header, paragraph, list)
 });
 
-const tripSchema = new mongoose.Schema({
-  destination: { type: mongoose.Schema.Types.ObjectId, ref: "Destination" },
-  title: String,
-
-  // ✅ ADD THIS
-  slug: {
-    type: String,
-    unique: true,
-    index: true,
-  },
-
-  subtitle: String,
-  location: String,
-  image: String,
-  imagePublicId: String,
-  duration: String,
-  price: String,
-  rating: String, // change number to String
-  link:String,
-  description: String,
-  overviewTitle: { type: String, required: true },
-  overviewSubTitle: { type: String,required:true },
-  overviewDescription: { type: String, required: true },
-  gallery: [
-    {
-      url: String,
-      publicId: String,
+const tripSchema = new mongoose.Schema(
+  {
+    // destination: { type: mongoose.Schema.Types.ObjectId, ref: "Destination" },
+    destination: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Destination",
+      required: true,
     },
-  ],
-   // Sections
+
+    region: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+
+    regionName: String,
+    regionSlug: String,
+
+    destinationName: String,
+    destinationSlug: String,
+
+    title: String,
+
+    // ✅ ADD THIS
+    slug: {
+      type: String,
+      // unique: true,
+      index: true,
+    },
+
+    subtitle: String,
+    location: String,
+    image: String,
+    imagePublicId: String,
+    duration: String,
+    price: String,
+    rating: String, // change number to String
+    link: String,
+    description: String,
+    overviewTitle: { type: String, required: true },
+    overviewSubTitle: { type: String, required: true },
+    overviewDescription: { type: String, required: true },
+    gallery: [
+      {
+        url: String,
+        publicId: String,
+      },
+    ],
+    // Sections
     aboutBooking: [qaSchema],
     requirements: [qaSchema],
-  itinerary: [itineraryItemSchema],
-   // ✅ New Trip Highlights section
+    itinerary: [itineraryItemSchema],
+    // ✅ New Trip Highlights section
     tripHighlights: [tripHighlightSchema],
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true });
+// tripSchema.pre("save", async function (next) {
+//   if (!this.isModified("title")) return next(); // Only regenerate if title changes
+
+//   if (!this.slug) {
+//     let baseSlug = slugify(this.title);
+//     let slug = baseSlug;
+//     let count = 1;
+
+//     const Trip = mongoose.model("Trip");
+
+//     // Exclude current document from duplicate check
+//     while (await Trip.findOne({ slug, _id: { $ne: this._id } })) {
+//       slug = `${baseSlug}-${count}`;
+//       count++;
+//     }
+
+//     this.slug = slug;
+//   }
+
+//   next();
+// });
 
 tripSchema.pre("save", async function (next) {
-  if (!this.isModified("title")) return next(); // Only regenerate if title changes
+  if (!this.isModified("title")) return next();
 
-  if (!this.slug) {
-    let baseSlug = slugify(this.title);
-    let slug = baseSlug;
-    let count = 1;
-
-    const Trip = mongoose.model("Trip");
-
-    // Exclude current document from duplicate check
-    while (await Trip.findOne({ slug, _id: { $ne: this._id } })) {
-      slug = `${baseSlug}-${count}`;
-      count++;
-    }
-
-    this.slug = slug;
-  }
+  this.slug = slugify(this.title);
 
   next();
 });
-
 
 export default mongoose.model("Trip", tripSchema);

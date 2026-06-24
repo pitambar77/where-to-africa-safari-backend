@@ -96,6 +96,9 @@ import {
   getTripById,
   updateTrip,
   deleteTrip,
+  getTripsByDestination,
+  getTripsByRegion,
+  getTripsByDestinationAndRegion,
 } from "../controller/Botswana/tripController.js";
 
 const router = express.Router();
@@ -124,6 +127,10 @@ router.post(
 router.get("/", getAllTrips);
 
 router.get("/slug/:slug", getTripBySlug);
+
+router.get("/destination/:destinationSlug", getTripsByDestination);
+router.get("/region/:regionSlug", getTripsByRegion);
+router.get("/:destinationSlug/:regionSlug", getTripsByDestinationAndRegion);
 
 /**
  * ✅ Get Trip by ID

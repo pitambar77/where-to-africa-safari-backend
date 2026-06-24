@@ -1,5 +1,3 @@
-
-
 import Trip from "../../models/Botswana/Trip.js";
 import Destination from "../../models/Botswana/Destination.js";
 
@@ -74,10 +72,33 @@ export const createTrip = async (req, res) => {
       tripHighlightImage: highlightImages[i] || null,
     }));
 
+    // new daata add
+
+    const destination = await Destination.findById(destinationId);
+
+    if (!destination) {
+      return res.status(404).json({
+        message: "Destination not found",
+      });
+    }
+
+    const region = destination.regions.id(regionId);
+
+    if (!region) {
+      return res.status(404).json({
+        message: "Region not found",
+      });
+    }
+
     /* ---------- Create Trip ---------- */
     const trip = await Trip.create({
       destination: destinationId,
       region: regionId, // ✅ ADD THIS
+      destinationName: destination.name,
+      destinationSlug: destination.slug,
+
+      regionName: region.name,
+      regionSlug: region.slug,
       title,
       subtitle,
       location,
@@ -116,20 +137,87 @@ export const createTrip = async (req, res) => {
 export const getAllTrips = async (req, res) => {
   try {
     const trips = await Trip.find().populate("destination");
+    // const trips = await Trip.find()
+    //   .select(
+    //     "title destinationName destinationSlug regionName regionSlug image"
+    //   )
+    //   .sort({ createdAt: -1 });
     res.json(trips);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+export const getTripsByDestination = async (req, res) => {
+  try {
+    const trips = await Trip.find({
+      destinationSlug: req.params.destinationSlug,
+    });
+
+    res.json(trips);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+export const getTripsByRegion = async (req, res) => {
+  try {
+    const trips = await Trip.find({
+      regionSlug: req.params.regionSlug,
+    });
+
+    res.json(trips);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+export const getTripsByDestinationAndRegion = async (req, res) => {
+  try {
+    const trips = await Trip.find({
+      destinationSlug: req.params.destinationSlug,
+      regionSlug: req.params.regionSlug,
+    });
+
+    res.json(trips);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
 /* =========================
    GET TRIP BY ID
 ========================= */
+// export const getTripById = async (req, res) => {
+//   try {
+//     const trip = await Trip.findById(req.params.id).populate("destination");
+//     if (!trip) return res.status(404).json({ message: "Trip not found" });
+//     res.json(trip);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const getTripById = async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id).populate("destination");
-    if (!trip) return res.status(404).json({ message: "Trip not found" });
-    res.json(trip);
+
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found" });
+    }
+
+    const region = trip.destination?.regions.id(trip.region);
+
+    res.json({
+      ...trip.toObject(),
+      regionDetails: region,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -138,114 +226,332 @@ export const getTripById = async (req, res) => {
 /* =========================
    GET TRIP BY SLUG
 ========================= */
+// export const getTripBySlug = async (req, res) => {
+//   try {
+//     const { slug } = req.params;
+
+//     const trip = await Trip.findOne({ slug })
+//       .populate("destination");
+
+//     if (!trip) {
+//       return res.status(404).json({ message: "Trip not found" });
+//     }
+
+//     res.json(trip);
+//   } catch (err) {
+//     console.error("GET TRIP BY SLUG ERROR:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const getTripBySlug = async (req, res) => {
   try {
-    const { slug } = req.params;
-
-    const trip = await Trip.findOne({ slug })
-      .populate("destination");
+    const trip = await Trip.findOne({
+      slug: req.params.slug,
+    }).populate("destination");
 
     if (!trip) {
       return res.status(404).json({ message: "Trip not found" });
     }
 
-    res.json(trip);
+    const region = trip.destination?.regions.id(trip.region);
+
+    res.json({
+      ...trip.toObject(),
+      regionDetails: region,
+    });
   } catch (err) {
-    console.error("GET TRIP BY SLUG ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };
 
-
 /* =========================
    UPDATE TRIP
 ========================= */
+// export const updateTrip = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updateData = req.body;
+
+//    const newDestinationId = updateData.destinationId;
+// const newRegionId = updateData.regionId;
+
+// if (updateData.destinationId) {
+//   updateData.destination = updateData.destinationId;
+//   delete updateData.destinationId;
+// }
+
+// if (updateData.regionId) {
+//   updateData.region = updateData.regionId;
+//   delete updateData.regionId;
+// }
+
+//     // 🔹 STEP 2: Fetch existing trip
+//     const existingTrip = await Trip.findById(id);
+//     if (!existingTrip) {
+//       return res.status(404).json({ message: "Trip not found" });
+//     }
+
+//     // old references
+//     const oldDestinationId = existingTrip.destination?.toString();
+//     const oldRegionId = existingTrip.region?.toString();
+
+//     // new references (from frontend)
+
+//     const destination = await Destination.findById(newDestinationId);
+
+//     const region = destination?.regions.id(newRegionId);
+
+//     existingTrip.destinationName = destination?.name;
+//     existingTrip.destinationSlug = destination?.slug;
+
+//     existingTrip.regionName = region?.name;
+//     existingTrip.regionSlug = region?.slug;
+
+//     // 🔹 STEP 3: Sync trip inside destination → region.trips[]
+//     if (
+//       newDestinationId &&
+//       newRegionId &&
+//       (oldDestinationId !== newDestinationId || oldRegionId !== newRegionId)
+//     ) {
+//       // ❌ Remove from old region
+//       if (oldRegionId) {
+//         await Destination.updateOne(
+//           { "regions._id": oldRegionId },
+//           { $pull: { "regions.$.trips": existingTrip._id } }
+//         );
+//       }
+
+//       // ✅ Add to new region
+//       await Destination.updateOne(
+//         { _id: newDestinationId, "regions._id": newRegionId },
+//         { $addToSet: { "regions.$.trips": existingTrip._id } }
+//       );
+
+//       // Update trip refs
+//       // existingTrip.destination = newDestinationId;
+//       // existingTrip.region = newRegionId;
+
+//       existingTrip.destination = newDestinationId;
+//       existingTrip.region = newRegionId;
+//     }
+
+//     /* ---------- Parse Q&A ---------- */
+//     updateData.aboutBooking = safeParse(updateData.aboutBooking);
+//     updateData.requirements = safeParse(updateData.requirements);
+
+//     /* ---------- Banner Image ---------- */
+//     if (req.files?.image?.length) {
+//       updateData.image = req.files.image[0].path;
+//     }
+
+//     /* ---------- Gallery (APPEND, NOT REPLACE) ---------- */
+//     // if (req.files?.gallery?.length) {
+//     //   updateData.$push = {
+//     //     gallery: {
+//     //       $each: req.files.gallery.map((f) => ({
+//     //         url: f.path,
+//     //         publicId: f.filename,
+//     //       })),
+//     //     },
+//     //   };
+//     // }
+
+//     if (req.files?.gallery?.length) {
+//       existingTrip.gallery.push(
+//         ...req.files.gallery.map((f) => ({
+//           url: f.path,
+//           publicId: f.filename,
+//         }))
+//       );
+//     }
+
+//     /* ---------- Itinerary ---------- */
+//     // if (updateData.itinerary) {
+//     //   const itineraryImages = req.files?.itineraryImages?.map((f) => f.path) || [];
+//     //   updateData.itinerary = safeParse(updateData.itinerary).map((item, i) => ({
+//     //     ...item,
+//     //     // image: itineraryImages[i] || item.image || null,
+//     //     image: itineraryImages[i]?.path ?? item.image
+
+//     //   }));
+//     // }
+
+//     if (updateData.itinerary) {
+//       const itineraryImages = req.files?.itineraryImages || [];
+
+//       updateData.itinerary = safeParse(updateData.itinerary).map((item) => ({
+//         ...item,
+//         image:
+//           typeof item.imageIndex === "number"
+//             ? itineraryImages[item.imageIndex]?.path
+//             : item.image,
+//       }));
+//     }
+
+//     if (updateData.tripHighlights) {
+//       const highlightImages = req.files?.tripHighlightImage || [];
+
+//       updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
+//         (item) => ({
+//           title: item.title,
+//           description: item.description,
+//           status: item.status,
+//           tripHighlightImage:
+//             typeof item.imageIndex === "number"
+//               ? highlightImages[item.imageIndex]?.path
+//               : item.tripHighlightImage,
+//         })
+//       );
+//     }
+
+//     // 🔹 STEP 5: Apply updates to trip
+//     Object.assign(existingTrip, updateData);
+//     const updatedTrip = await existingTrip.save();
+
+//     if (!updatedTrip) {
+//       return res.status(404).json({ message: "Trip not found" });
+//     }
+
+//     res.json({ message: "Trip updated successfully", trip: updatedTrip });
+//   } catch (err) {
+//     console.error("UPDATE TRIP ERROR:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const updateTrip = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    // 🔹 STEP 2: Fetch existing trip
+    // =========================
+    // Fetch Existing Trip
+    // =========================
     const existingTrip = await Trip.findById(id);
+
     if (!existingTrip) {
-      return res.status(404).json({ message: "Trip not found" });
+      return res.status(404).json({
+        message: "Trip not found",
+      });
     }
 
-    // old references
+    // =========================
+    // Old References
+    // =========================
     const oldDestinationId = existingTrip.destination?.toString();
+
     const oldRegionId = existingTrip.region?.toString();
 
-    // new references (from frontend)
-    const newDestinationId = updateData.destinationId;
-    const newRegionId = updateData.regionId;
+    // =========================
+    // New References
+    // =========================
+    const newDestinationId =
+      updateData.destinationId || existingTrip.destination?.toString();
 
-    // 🔹 STEP 3: Sync trip inside destination → region.trips[]
-    if (
-      newDestinationId &&
-      newRegionId &&
-      (oldDestinationId !== newDestinationId || oldRegionId !== newRegionId)
-    ) {
-      // ❌ Remove from old region
+    const newRegionId = updateData.regionId || existingTrip.region?.toString();
+
+    // =========================
+    // Convert Form Fields
+    // =========================
+    if (updateData.destinationId) {
+      updateData.destination = updateData.destinationId;
+      delete updateData.destinationId;
+    }
+
+    if (updateData.regionId) {
+      updateData.region = updateData.regionId;
+      delete updateData.regionId;
+    }
+
+    // =========================
+    // Destination + Region Details
+    // =========================
+    if (newDestinationId && newRegionId) {
+      const destination = await Destination.findById(newDestinationId);
+
+      if (destination) {
+        const region = destination.regions.id(newRegionId);
+
+        existingTrip.destinationName = destination.name;
+
+        existingTrip.destinationSlug = destination.slug;
+
+        existingTrip.regionName = region?.name || "";
+
+        existingTrip.regionSlug = region?.slug || "";
+      }
+    }
+
+    // =========================
+    // Sync Region Trips
+    // =========================
+    if (oldDestinationId !== newDestinationId || oldRegionId !== newRegionId) {
+      // Remove from old region
       if (oldRegionId) {
         await Destination.updateOne(
-          { "regions._id": oldRegionId },
-          { $pull: { "regions.$.trips": existingTrip._id } }
+          {
+            "regions._id": oldRegionId,
+          },
+          {
+            $pull: {
+              "regions.$.trips": existingTrip._id,
+            },
+          }
         );
       }
 
-      // ✅ Add to new region
+      // Add to new region
       await Destination.updateOne(
-        { _id: newDestinationId, "regions._id": newRegionId },
-        { $addToSet: { "regions.$.trips": existingTrip._id } }
+        {
+          _id: newDestinationId,
+          "regions._id": newRegionId,
+        },
+        {
+          $addToSet: {
+            "regions.$.trips": existingTrip._id,
+          },
+        }
       );
 
-      // Update trip refs
       existingTrip.destination = newDestinationId;
+
       existingTrip.region = newRegionId;
     }
 
-    /* ---------- Parse Q&A ---------- */
-    updateData.aboutBooking = safeParse(updateData.aboutBooking);
-    updateData.requirements = safeParse(updateData.requirements);
+    // =========================
+    // Parse Q&A
+    // =========================
+    if (updateData.aboutBooking) {
+      updateData.aboutBooking = safeParse(updateData.aboutBooking);
+    }
 
-    /* ---------- Banner Image ---------- */
+    if (updateData.requirements) {
+      updateData.requirements = safeParse(updateData.requirements);
+    }
+
+    // =========================
+    // Banner Image
+    // =========================
     if (req.files?.image?.length) {
       updateData.image = req.files.image[0].path;
     }
 
-    /* ---------- Gallery (APPEND, NOT REPLACE) ---------- */
-    // if (req.files?.gallery?.length) {
-    //   updateData.$push = {
-    //     gallery: {
-    //       $each: req.files.gallery.map((f) => ({
-    //         url: f.path,
-    //         publicId: f.filename,
-    //       })),
-    //     },
-    //   };
-    // }
-
+    // =========================
+    // Gallery Append
+    // =========================
     if (req.files?.gallery?.length) {
-  existingTrip.gallery.push(
-    ...req.files.gallery.map((f) => ({
-      url: f.path,
-      publicId: f.filename,
-    }))
-  );
-}
+      existingTrip.gallery.push(
+        ...req.files.gallery.map((f) => ({
+          url: f.path,
+          publicId: f.filename,
+        }))
+      );
+    }
 
-
-    /* ---------- Itinerary ---------- */
-    // if (updateData.itinerary) {
-    //   const itineraryImages = req.files?.itineraryImages?.map((f) => f.path) || [];
-    //   updateData.itinerary = safeParse(updateData.itinerary).map((item, i) => ({
-    //     ...item,
-    //     // image: itineraryImages[i] || item.image || null,
-    //     image: itineraryImages[i]?.path ?? item.image
-
-    //   }));
-    // }
-
+    // =========================
+    // Itinerary
+    // =========================
     if (updateData.itinerary) {
       const itineraryImages = req.files?.itineraryImages || [];
 
@@ -258,32 +564,9 @@ export const updateTrip = async (req, res) => {
       }));
     }
 
-    /* ---------- Trip Highlights ---------- */
-    // if (updateData.tripHighlights) {
-    //   const highlightImages = req.files?.tripHighlightImage?.map((f) => f.path) || [];
-    //   updateData.tripHighlights = safeParse(updateData.tripHighlights).map((item, i) => ({
-    //     title: item.title,
-    //     description: item.description,
-    //     status: item.status,
-    //     tripHighlightImage: highlightImages[i] || item.tripHighlightImage || null,
-    //   }));
-    // }
-
-    /* ---------- Trip Highlights ---------- */
-    // if (updateData.tripHighlights) {
-    //   const highlightImages = req.files?.tripHighlightImage || [];
-
-    //   updateData.tripHighlights = safeParse(updateData.tripHighlights).map(
-    //     (item, i) => ({
-    //       title: item.title,
-    //       description: item.description,
-    //       status: item.status,
-    //       tripHighlightImage:
-    //         highlightImages[i]?.path ?? item.tripHighlightImage,
-    //     })
-    //   );
-    // }
-
+    // =========================
+    // Trip Highlights
+    // =========================
     if (updateData.tripHighlights) {
       const highlightImages = req.files?.tripHighlightImage || [];
 
@@ -300,23 +583,23 @@ export const updateTrip = async (req, res) => {
       );
     }
 
-    // const updatedTrip = await Trip.findByIdAndUpdate(id, updateData, {
-    //   new: true,
-    //   runValidators: true,
-    // });
-
-    // 🔹 STEP 5: Apply updates to trip
+    // =========================
+    // Apply Updates
+    // =========================
     Object.assign(existingTrip, updateData);
+
     const updatedTrip = await existingTrip.save();
 
-    if (!updatedTrip) {
-      return res.status(404).json({ message: "Trip not found" });
-    }
-
-    res.json({ message: "Trip updated successfully", trip: updatedTrip });
+    res.json({
+      message: "Trip updated successfully",
+      trip: updatedTrip,
+    });
   } catch (err) {
     console.error("UPDATE TRIP ERROR:", err);
-    res.status(500).json({ message: err.message });
+
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
