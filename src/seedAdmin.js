@@ -20,6 +20,12 @@ const admins = [
     password: "safari!23",
     role: "admin",
   },
+   {
+    username: "where_to_africa_safari",
+    email: "john@whereto.africa",
+    password: "john!23",
+    role: "admin",
+  },
 ];
 
 const createAdmins = async () => {
