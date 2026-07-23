@@ -21,6 +21,7 @@ import aboutusRoutes from './routes/aboutusRoutes/aboutusRoutes.js'
 import conservationRoutes from './routes/conservationRoutes/conservationRoutes.js'
 import contactuspageRoutes from './routes/contactuspageRoutes/contactuspageRoutes.js'
 import homeRoutes from './routes/homeRoutes/homeRoutes.js'
+import footerRoutes from './routes/footerRoutes/footerRoutes.js'
 
 
 dotenv.config();
@@ -54,6 +55,7 @@ app.use("/api/aboutus", aboutusRoutes);
 app.use("/api/conservation", conservationRoutes);
 app.use("/api/contactus", contactuspageRoutes);
 app.use("/api/home",homeRoutes)
+app.use("/api/footer",footerRoutes)
 
 
 connectDB()
