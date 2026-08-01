@@ -45,21 +45,6 @@ export const submitContactForm = async (req, res) => {
 
     /* ================= EMAIL TO ADMIN ================= */
 
-    // await transporter.sendMail({
-    //   from: `"Website Contact" <${process.env.MAIL_USER}>`,
-    //   to: process.env.MAIL_RECEIVER,
-    //   subject: `New Contact Form - ${inquiry}`,
-    //   html: `
-    //     <h2>New Contact Submission</h2>
-    //     <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-    //     <p><strong>Email:</strong> ${email}</p>
-    //     <p><strong>Phone:</strong> ${phone}</p>
-    //     <p><strong>Inquiry Type:</strong> ${inquiry}</p>
-    //     <p><strong>Message:</strong></p>
-    //     <p>${message}</p>
-    //   `,
-    // });
-
     await transporter.sendMail({
       from: `"Where To Africa" <${process.env.MAIL_USER}>`,
       to: process.env.MAIL_RECEIVER,
