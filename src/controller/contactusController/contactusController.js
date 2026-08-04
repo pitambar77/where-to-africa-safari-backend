@@ -1,9 +1,36 @@
+import axios from "axios";
 import Contact from "../../models/Contact/ContactForm.js";
 import transporter from "../../config/mailer.js";
 
 export const submitContactForm = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, inquiry, message } = req.body;
+    const { firstName, lastName, email, phone, inquiry, message,captchaToken, } = req.body;
+
+
+    if (!captchaToken) {
+  return res.status(400).json({
+    success: false,
+    message: "Please complete the CAPTCHA.",
+  });
+}
+
+const response = await axios.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      null,
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: captchaToken,
+        },
+      }
+    );
+
+    if (!response.data.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Captcha verification failed.",
+      });
+    }
 
     /* ================= VALIDATION ================= */
 

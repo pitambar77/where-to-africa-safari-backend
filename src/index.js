@@ -22,6 +22,8 @@ import conservationRoutes from './routes/conservationRoutes/conservationRoutes.j
 import contactuspageRoutes from './routes/contactuspageRoutes/contactuspageRoutes.js'
 import homeRoutes from './routes/homeRoutes/homeRoutes.js'
 import footerRoutes from './routes/footerRoutes/footerRoutes.js'
+import inquiryRoute from './routes/inquiryRoute.js'
+import popupformRoute from './routes/popupformRoute.js'
 
 
 dotenv.config();
@@ -32,6 +34,8 @@ app.use(express.json());
 
 app.use("/api", travelguideRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/inquiry", inquiryRoute);
+app.use("/api/floating-enquiry",popupformRoute );
 
 app.use("/api/accommodation", accommodationRoutes);
 app.use("/api/itinerary", itineraryRoutes);
