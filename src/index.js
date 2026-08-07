@@ -24,6 +24,9 @@ import homeRoutes from './routes/homeRoutes/homeRoutes.js'
 import footerRoutes from './routes/footerRoutes/footerRoutes.js'
 import inquiryRoute from './routes/inquiryRoute.js'
 import popupformRoute from './routes/popupformRoute.js'
+import blogRoutes from "./routes/blogRoutes.js";
+import blogCategoryRoutes from './routes/blogCategoryRoutes.js'
+import blogAuthorRoutes from "./routes/blogAuthorRoutes.js";
 
 
 dotenv.config();
@@ -53,6 +56,10 @@ app.use("/api/accommodationlanding", accommodationlandingRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/seo", seoRoutes);
+
+app.use("/api/blogs", blogRoutes);
+app.use("/api/blog-category", blogCategoryRoutes);
+app.use("/api/blog-author", blogAuthorRoutes);
 
 
 app.use("/api/aboutus", aboutusRoutes);
