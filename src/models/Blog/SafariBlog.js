@@ -58,6 +58,7 @@ const contentBlockSchema = new mongoose.Schema(
         question: String,
         answer: String,
         title: String,
+        content: String,
         description: String,
       },
     ],

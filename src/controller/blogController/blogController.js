@@ -284,6 +284,7 @@ export const updateBlog = async (req, res) => {
 
     let {
       title,
+      slug,
       excerpt,
       category,
       author,
@@ -380,10 +381,44 @@ export const updateBlog = async (req, res) => {
        Regenerate Slug (if title changed)
     ---------------------------------- */
 
-    let slug = blog.slug;
+    // let slug = blog.slug;
 
-    if (title && title !== blog.title) {
-      slug = await generateUniqueSlug(title);
+    // if (title && title !== blog.title) {
+    //   slug = await generateUniqueSlug(title);
+    // }
+
+    /* ----------------------------------
+   Slug
+---------------------------------- */
+
+    let finalSlug = blog.slug;
+
+    // User manually changed the slug
+    if (slug && slug.trim() !== blog.slug) {
+      finalSlug = slug
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+
+      // Check if another blog already has this slug
+      const existingBlog = await SafariBlog.findOne({
+        slug: finalSlug,
+        _id: { $ne: blog._id },
+      });
+
+      if (existingBlog) {
+        return res.status(400).json({
+          success: false,
+          message: "This slug is already used by another blog.",
+        });
+      }
+    }
+
+    // Title changed and slug was NOT manually changed
+    else if (title && title !== blog.title) {
+      finalSlug = await generateUniqueSlug(title);
     }
 
     /* ----------------------------------
@@ -399,7 +434,7 @@ export const updateBlog = async (req, res) => {
     ---------------------------------- */
 
     blog.title = title ?? blog.title;
-    blog.slug = slug;
+    blog.slug = finalSlug;
     blog.excerpt = excerpt ?? blog.excerpt;
 
     blog.bannerImage = bannerImage;
