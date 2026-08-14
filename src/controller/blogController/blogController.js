@@ -28,44 +28,160 @@ const generateUniqueSlug = async (title) => {
    Calculate Reading Time
 ------------------------------------------ */
 
+// const calculateReadingTime = (content = []) => {
+//   let words = 0;
+
+//   content.forEach((block) => {
+//     if (block.content) {
+//       words += block.content.replace(/<[^>]*>/g, "").split(/\s+/).length;
+//     }
+
+//     if (Array.isArray(block.text)) {
+//       block.text.forEach((item) => {
+//         words += item.split(/\s+/).length;
+//       });
+//     }
+
+//     if (block.descriptionLeft) {
+//       words += block.descriptionLeft.split(/\s+/).length;
+//     }
+
+//     if (block.descriptionRight) {
+//       words += block.descriptionRight.split(/\s+/).length;
+//     }
+
+//     if (Array.isArray(block.items)) {
+//       block.items.forEach((item) => {
+//         if (item.question) {
+//           words += item.question.split(/\s+/).length;
+//         }
+
+//         if (item.answer) {
+//           words += item.answer.split(/\s+/).length;
+//         }
+
+//         if (item.title) {
+//           words += item.title.split(/\s+/).length;
+//         }
+
+//         if (item.description) {
+//           words += item.description.split(/\s+/).length;
+//         }
+//       });
+//     }
+//   });
+
+//   return Math.max(1, Math.ceil(words / 200));
+// };
+
 const calculateReadingTime = (content = []) => {
   let words = 0;
 
   content.forEach((block) => {
-    if (block.content) {
-      words += block.content.replace(/<[^>]*>/g, "").split(/\s+/).length;
+    /* -----------------------------
+       Title
+    ----------------------------- */
+
+    if (block.title) {
+      words += block.title.split(/\s+/).filter(Boolean).length;
     }
+
+    /* -----------------------------
+       Subtitle
+    ----------------------------- */
+
+    if (block.subtitle) {
+      words += block.subtitle.split(/\s+/).filter(Boolean).length;
+    }
+
+    /* -----------------------------
+       Content / HTML Editor
+    ----------------------------- */
+
+    if (block.content) {
+      words += block.content
+        .replace(/<[^>]*>/g, "")
+        .split(/\s+/)
+        .filter(Boolean).length;
+    }
+
+    /* -----------------------------
+       Description
+    ----------------------------- */
+
+    if (block.description) {
+      words += block.description
+        .split(/\s+/)
+        .filter(Boolean).length;
+    }
+
+    /* -----------------------------
+       Text Array
+    ----------------------------- */
 
     if (Array.isArray(block.text)) {
       block.text.forEach((item) => {
-        words += item.split(/\s+/).length;
+        if (item) {
+          words += item.split(/\s+/).filter(Boolean).length;
+        }
       });
     }
 
+    /* -----------------------------
+       Left Description
+    ----------------------------- */
+
     if (block.descriptionLeft) {
-      words += block.descriptionLeft.split(/\s+/).length;
+      words += block.descriptionLeft
+        .split(/\s+/)
+        .filter(Boolean).length;
     }
 
+    /* -----------------------------
+       Right Description
+    ----------------------------- */
+
     if (block.descriptionRight) {
-      words += block.descriptionRight.split(/\s+/).length;
+      words += block.descriptionRight
+        .split(/\s+/)
+        .filter(Boolean).length;
     }
+
+    /* -----------------------------
+       FAQ / Accordion Items
+    ----------------------------- */
 
     if (Array.isArray(block.items)) {
       block.items.forEach((item) => {
         if (item.question) {
-          words += item.question.split(/\s+/).length;
+          words += item.question
+            .split(/\s+/)
+            .filter(Boolean).length;
         }
 
         if (item.answer) {
-          words += item.answer.split(/\s+/).length;
+          words += item.answer
+            .split(/\s+/)
+            .filter(Boolean).length;
         }
 
         if (item.title) {
-          words += item.title.split(/\s+/).length;
+          words += item.title
+            .split(/\s+/)
+            .filter(Boolean).length;
+        }
+
+        if (item.content) {
+          words += item.content
+            .replace(/<[^>]*>/g, "")
+            .split(/\s+/)
+            .filter(Boolean).length;
         }
 
         if (item.description) {
-          words += item.description.split(/\s+/).length;
+          words += item.description
+            .split(/\s+/)
+            .filter(Boolean).length;
         }
       });
     }

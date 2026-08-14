@@ -45,6 +45,70 @@ const contentBlockSchema = new mongoose.Schema(
 
     content: String,
 
+    /* ===============================
+   VIDEO FIELDS
+=============================== */
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    youtubeUrl: {
+      type: String,
+      default: "",
+    },
+
+    vimeoUrl: {
+      type: String,
+      default: "",
+    },
+
+    poster: {
+      type: String,
+      default: "",
+    },
+
+    controls: {
+      type: Boolean,
+      default: true,
+    },
+
+    autoplay: {
+      type: Boolean,
+      default: false,
+    },
+
+    loop: {
+      type: Boolean,
+      default: false,
+    },
+
+    muted: {
+      type: Boolean,
+      default: false,
+    },
+
+    width: {
+      type: String,
+      default: "100%",
+    },
+
+    aspectRatio: {
+      type: String,
+      default: "16/9",
+    },
+
+    startAt: {
+      type: Number,
+      default: 0,
+    },
+
+    endAt: {
+      type: Number,
+      default: null,
+    },
+
     text: [String],
 
     descriptionLeft: String,
@@ -207,7 +271,7 @@ const blogSchema = new mongoose.Schema(
       default: false,
     },
   },
-  
+
   {
     timestamps: true,
   }
