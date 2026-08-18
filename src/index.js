@@ -27,6 +27,7 @@ import popupformRoute from './routes/popupformRoute.js'
 import blogRoutes from "./routes/blogRoutes.js";
 import blogCategoryRoutes from './routes/blogCategoryRoutes.js'
 import blogAuthorRoutes from "./routes/blogAuthorRoutes.js";
+import sitemapRoutes from "./routes/sitemapRoutes.js";
 
 
 dotenv.config();
@@ -65,8 +66,9 @@ app.use("/api/blog-author", blogAuthorRoutes);
 app.use("/api/aboutus", aboutusRoutes);
 app.use("/api/conservation", conservationRoutes);
 app.use("/api/contactus", contactuspageRoutes);
-app.use("/api/home",homeRoutes)
-app.use("/api/footer",footerRoutes)
+app.use("/api/home",homeRoutes);
+app.use("/api/footer",footerRoutes);
+app.use("/api/sitemap", sitemapRoutes);
 
 
 connectDB()
