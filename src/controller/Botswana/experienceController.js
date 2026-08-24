@@ -243,11 +243,48 @@ export const updateExperience = async (req, res) => {
       existingExperience.bannerImage = req.files.bannerImage[0].path;
     }
 
-    if (req.files?.galleryImages) {
+    // if (req.files?.galleryImages) {
+    //   existingExperience.gallery = {
+    //     description: req.body.galleryDescription,
+    //     images: req.files.galleryImages.map((f) => ({ image: f.path })),
+    //   };
+    // }
+
+    /* ---------- Gallery ---------- */
+
+    // if (req.files?.galleryImages?.length > 0) {
+    //   const newGalleryImages = req.files.galleryImages.map((f) => ({
+    //     image: f.path,
+    //   }));
+
+    //   existingExperience.gallery.images = [
+    //     ...(existingExperience.gallery?.images || []),
+    //     ...newGalleryImages,
+    //   ];
+    // }
+
+    /* ---------- Gallery ---------- */
+
+    if (!existingExperience.gallery) {
       existingExperience.gallery = {
-        description: req.body.galleryDescription,
-        images: req.files.galleryImages.map((f) => ({ image: f.path })),
+        description: "",
+        images: [],
       };
+    }
+
+    if (req.files?.galleryImages?.length > 0) {
+      const newGalleryImages = req.files.galleryImages.map((f) => ({
+        image: f.path,
+      }));
+
+      existingExperience.gallery.images = [
+        ...(existingExperience.gallery.images || []),
+        ...newGalleryImages,
+      ];
+    }
+
+    if (req.body.galleryDescription !== undefined) {
+      existingExperience.gallery.description = req.body.galleryDescription;
     }
 
     /* ---------- Parse JSON fields ---------- */
@@ -275,25 +312,6 @@ export const updateExperience = async (req, res) => {
 
     if (req.body.gameDrives)
       existingExperience.gameDrives = JSON.parse(req.body.gameDrives);
-
-    // if (req.body.highlights)
-    //   existingExperience.highlights = JSON.parse(req.body.highlights);
-
-    // if (req.body.highlights) {
-    //   const incomingHighlights = JSON.parse(req.body.highlights);
-    //   const highlightImages =
-    //     req.files?.highlightImages?.map((f) => f.path) || [];
-
-    //   let imageIndex = 0;
-
-    //   existingExperience.highlights = incomingHighlights.map((h, index) => ({
-    //     name: h.name,
-    //     description: h.description,
-    //     image: highlightImages[imageIndex]
-    //       ? highlightImages[imageIndex++] // ✅ new uploaded image
-    //       : existingExperience.highlights[index]?.image || null, // ✅ keep old
-    //   }));
-    // }
 
     if (req.body.highlights) {
       const incomingHighlights = JSON.parse(req.body.highlights);
