@@ -1,5 +1,3 @@
-
-
 import express from "express";
 import upload from "../middleware/upload.js";
 import {
@@ -8,7 +6,8 @@ import {
   updateExperience,
   deleteExperience,
   getExperienceBySlug,
-  getExperienceById
+  getExperienceById,
+  
 } from "../controller/Botswana/experienceController.js";
 
 const router = express.Router();
@@ -40,6 +39,8 @@ router.put(
 ]),
   updateExperience
 );
+
+
 router.delete("/:id", deleteExperience);
 
 export default router;

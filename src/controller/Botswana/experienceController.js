@@ -155,48 +155,105 @@ export const getExperienceById = async (req, res) => {
   }
 };
 
-// ✅ UPDATE Experience (supports partial updates and new images)
-// export const updateExperience = async (req, res) => {
-//   try {
-//     const { id } = req.params;
 
-//     const updateData = { ...req.body };
 
-//     // ✅ Handle reuploads
-//     if (req.files?.bannerImage?.[0]) {
-//       updateData.bannerImage = req.files.bannerImage[0].path;
-//     }
+const getCloudinaryPublicId = (imageUrl) => {
+  if (!imageUrl) return null;
 
-//     if (req.files?.galleryImages) {
-//       updateData.gallery = {
-//         description: req.body.galleryDescription,
-//         images: req.files.galleryImages.map((f) => ({ image: f.path })),
-//       };
-//     }
+  try {
+    const url = new URL(imageUrl);
 
-//     // ✅ Rebuild highlights/gameDrives if updated
-//     if (req.body.highlights)
-//       updateData.highlights = JSON.parse(req.body.highlights);
-//     if (req.body.gameDrives)
-//       updateData.gameDrives = JSON.parse(req.body.gameDrives);
-//     if (req.body.experienceInfo)
-//       updateData.experienceInfo = JSON.parse(req.body.experienceInfo);
-//     if (req.body.overview) updateData.overview = JSON.parse(req.body.overview);
-//     if (req.body.includes) updateData.includes = JSON.parse(req.body.includes);
+    const uploadIndex = url.pathname.indexOf("/upload/");
 
-//     const experience = await Experience.findByIdAndUpdate(id, updateData, {
-//       new: true,
-//     });
+    if (uploadIndex === -1) {
+      return null;
+    }
 
-//     if (!experience)
-//       return res.status(404).json({ message: "Experience not found" });
+    let publicPath = url.pathname.substring(
+      uploadIndex + "/upload/".length
+    );
 
-//     res.json({ message: "Experience updated successfully", experience });
-//   } catch (error) {
-//     console.error("Error updating experience:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    const parts = publicPath.split("/");
+
+    // Remove transformation parameters
+    while (
+      parts.length &&
+      (
+        parts[0].includes("_") ||
+        parts[0].includes(",") ||
+        parts[0].startsWith("c_") ||
+        parts[0].startsWith("w_") ||
+        parts[0].startsWith("h_") ||
+        parts[0].startsWith("f_") ||
+        parts[0].startsWith("q_") ||
+        parts[0].startsWith("ar_") ||
+        parts[0].startsWith("dpr_")
+      )
+    ) {
+      parts.shift();
+    }
+
+    // Remove version
+    if (/^v\d+$/.test(parts[0])) {
+      parts.shift();
+    }
+
+    // Remove extension
+    const fileName = parts.pop();
+
+    if (!fileName) {
+      return null;
+    }
+
+    const fileWithoutExtension = fileName.replace(
+      /\.[^/.]+$/,
+      ""
+    );
+
+    parts.push(fileWithoutExtension);
+
+    return parts.join("/");
+  } catch (error) {
+    console.error(
+      "Cloudinary public ID extraction error:",
+      error
+    );
+
+    return null;
+  }
+};
+
+const deleteCloudinaryImage = async (imageUrl) => {
+  if (!imageUrl) return;
+
+  try {
+    const publicId = getCloudinaryPublicId(imageUrl);
+
+    if (!publicId) {
+      console.log("Could not find public ID:", imageUrl);
+      return;
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+      type: "upload",
+      invalidate: true,
+    });
+
+    console.log(
+      "Cloudinary delete:",
+      publicId,
+      result
+    );
+  } catch (error) {
+    console.error(
+      "Failed to delete Cloudinary image:",
+      imageUrl,
+      error
+    );
+  }
+};
+
 
 export const updateExperience = async (req, res) => {
   try {
@@ -265,27 +322,163 @@ export const updateExperience = async (req, res) => {
 
     /* ---------- Gallery ---------- */
 
-    if (!existingExperience.gallery) {
-      existingExperience.gallery = {
-        description: "",
-        images: [],
-      };
+    // if (!existingExperience.gallery) {
+    //   existingExperience.gallery = {
+    //     description: "",
+    //     images: [],
+    //   };
+    // }
+
+    // if (req.files?.galleryImages?.length > 0) {
+    //   const newGalleryImages = req.files.galleryImages.map((f) => ({
+    //     image: f.path,
+    //   }));
+
+    //   existingExperience.gallery.images = [
+    //     ...(existingExperience.gallery.images || []),
+    //     ...newGalleryImages,
+    //   ];
+    // }
+
+    // if (req.body.galleryDescription !== undefined) {
+    //   existingExperience.gallery.description = req.body.galleryDescription;
+    // }
+
+    /* ---------- Gallery ---------- */
+
+    // if (!existingExperience.gallery) {
+    //   existingExperience.gallery = {
+    //     description: "",
+    //     images: [],
+    //   };
+    // }
+
+    // // Existing images that frontend wants to KEEP
+    // let existingGalleryImages = [];
+
+    // if (req.body.existingGalleryImages) {
+    //   existingGalleryImages = JSON.parse(req.body.existingGalleryImages);
+    // }
+
+    // // New uploaded images
+    // const newGalleryImages =
+    //   req.files?.galleryImages?.map((file) => ({
+    //     image: file.path,
+    //   })) || [];
+
+    // // Rebuild gallery
+    // existingExperience.gallery.images = [
+    //   ...existingGalleryImages,
+    //   ...newGalleryImages,
+    // ];
+
+    // if (req.body.galleryDescription !== undefined) {
+    //   existingExperience.gallery.description =
+    //     req.body.galleryDescription;
+    // }
+
+   /* ---------- Gallery ---------- */
+
+if (!existingExperience.gallery) {
+  existingExperience.gallery = {
+    description: "",
+    images: [],
+  };
+}
+
+// Images that frontend wants to KEEP
+let keptGalleryImages = [];
+
+if (req.body.existingGalleryImages) {
+  try {
+    keptGalleryImages = JSON.parse(req.body.existingGalleryImages);
+  } catch (error) {
+    return res.status(400).json({
+      message: "Invalid existingGalleryImages format",
+    });
+  }
+}
+
+// Old images from MongoDB
+const oldGalleryImages = existingExperience.gallery.images || [];
+
+console.log("=================================");
+console.log("OLD GALLERY IMAGES:");
+console.log(oldGalleryImages);
+
+console.log("KEPT GALLERY IMAGES:");
+console.log(keptGalleryImages);
+console.log("=================================");
+
+// Get URLs frontend wants to KEEP
+const keptImageUrls = new Set(
+  keptGalleryImages
+    .map((img) => img?.image)
+    .filter(Boolean)
+);
+
+// Find deleted images
+const deletedGalleryImages = oldGalleryImages.filter(
+  (oldImg) =>
+    oldImg?.image &&
+    !keptImageUrls.has(oldImg.image)
+);
+
+console.log("DELETED GALLERY IMAGES:");
+console.log(deletedGalleryImages);
+
+// Delete deleted images from Cloudinary
+for (const deletedImage of deletedGalleryImages) {
+  try {
+    const imageUrl = deletedImage.image;
+
+    console.log("Trying to delete Cloudinary image:");
+    console.log(imageUrl);
+
+    const publicId = getCloudinaryPublicId(imageUrl);
+
+    console.log("Extracted public ID:");
+    console.log(publicId);
+
+    if (!publicId) {
+      console.log("Could not extract Cloudinary public ID");
+      continue;
     }
 
-    if (req.files?.galleryImages?.length > 0) {
-      const newGalleryImages = req.files.galleryImages.map((f) => ({
-        image: f.path,
-      }));
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+      type: "upload",
+      invalidate: true,
+    });
 
-      existingExperience.gallery.images = [
-        ...(existingExperience.gallery.images || []),
-        ...newGalleryImages,
-      ];
-    }
+    console.log("Cloudinary delete result:");
+    console.log(result);
 
-    if (req.body.galleryDescription !== undefined) {
-      existingExperience.gallery.description = req.body.galleryDescription;
-    }
+  } catch (cloudinaryError) {
+    console.error(
+      "Cloudinary delete error:",
+      cloudinaryError
+    );
+  }
+}
+
+// New uploaded gallery images
+const newGalleryImages =
+  req.files?.galleryImages?.map((file) => ({
+    image: file.path,
+  })) || [];
+
+// Save remaining + new images
+existingExperience.gallery.images = [
+  ...keptGalleryImages,
+  ...newGalleryImages,
+];
+
+// Update description
+if (req.body.galleryDescription !== undefined) {
+  existingExperience.gallery.description =
+    req.body.galleryDescription;
+}
 
     /* ---------- Parse JSON fields ---------- */
     if (req.body.experienceInfo)
@@ -366,6 +559,8 @@ export const updateExperience = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 // ✅ DELETE Experience (unlink from destination region)
 export const deleteExperience = async (req, res) => {
