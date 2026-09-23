@@ -19,7 +19,24 @@ export const submitItineraryForm = async (req, res) => {
       newsUpdates,
       pastTraveller,
       acceptPolicy,
+      website, // Honeypot
     } = req.body;
+
+    // ================= HONEYPOT ANTI-SPAM =================
+
+if (website) {
+  console.log("Spam bot detected:", {
+    website,
+    email,
+    firstName,
+    lastName,
+  });
+
+  return res.status(400).json({
+    success: false,
+    message: "Invalid submission.",
+  });
+}
 
     // ================= VALIDATION =================
 
