@@ -28,6 +28,7 @@ import blogRoutes from "./routes/blogRoutes.js";
 import blogCategoryRoutes from './routes/blogCategoryRoutes.js'
 import blogAuthorRoutes from "./routes/blogAuthorRoutes.js";
 import sitemapRoutes from "./routes/sitemapRoutes.js";
+import itineraryFormRoute from "./routes/itineraryRoutes/itineraryFormRoute.js";
 
 
 dotenv.config();
@@ -40,7 +41,7 @@ app.use("/api", travelguideRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/inquiry", inquiryRoute);
 app.use("/api/floating-enquiry",popupformRoute );
-
+app.use("/api/itineraryform",itineraryFormRoute);
 app.use("/api/accommodation", accommodationRoutes);
 app.use("/api/itinerary", itineraryRoutes);
 // app.use("/api/experience", experienceRoutes);

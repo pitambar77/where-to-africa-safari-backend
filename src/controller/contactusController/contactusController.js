@@ -4,17 +4,32 @@ import transporter from "../../config/mailer.js";
 
 export const submitContactForm = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, inquiry, message,captchaToken, } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      inquiry,
+      message,
+      captchaToken,
+      website,
+    } = req.body;
 
+    if (website) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid submission.",
+      });
+    }
 
     if (!captchaToken) {
-  return res.status(400).json({
-    success: false,
-    message: "Please complete the CAPTCHA.",
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message: "Please complete the CAPTCHA.",
+      });
+    }
 
-const response = await axios.post(
+    const response = await axios.post(
       "https://www.google.com/recaptcha/api/siteverify",
       null,
       {
