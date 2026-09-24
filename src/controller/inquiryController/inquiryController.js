@@ -20,7 +20,22 @@ export const submitInquiryForm = async (req, res) => {
       country,
       acceptPolicy,
       captchaToken,
+      website,
     } = req.body;
+
+    // Honeypot
+if (website) {
+  console.log("🚨 Spam bot detected:", {
+    email,
+    firstName,
+    lastName,
+  });
+
+  return res.status(400).json({
+    success: false,
+    message: "Invalid submission.",
+  });
+}
 
     if (!captchaToken) {
       return res.status(400).json({
@@ -82,41 +97,8 @@ export const submitInquiryForm = async (req, res) => {
       phone,
       country,
       acceptPolicy,
+      website,
     });
-
-    // Send admin email
-    // await transporter.sendMail({
-    //   from: `"Where To Africa" <${process.env.MAIL_USER}>`,
-    //   to: process.env.MAIL_RECEIVER,
-    //   subject: "New Safari Inquiry",
-    //   html: `
-    //     <h2>New Safari Inquiry</h2>
-
-    //     <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-
-    //     <p><strong>Email:</strong> ${email}</p>
-
-    //     <p><strong>Phone:</strong> ${phone}</p>
-
-    //     <p><strong>Trip Type:</strong> ${tripType}</p>
-
-    //     <p><strong>Destinations:</strong> ${destinations.join(", ")}</p>
-
-    //     <p><strong>Planning Stage:</strong> ${planningStage}</p>
-
-    //     <p><strong>Budget:</strong> ${budget}</p>
-
-    //     <p><strong>Travel Date:</strong> ${travelDate}</p>
-
-    //     <p><strong>Adults:</strong> ${adults}</p>
-
-    //     <p><strong>Children:</strong> ${children}</p>
-
-    //     <p><strong>Country:</strong> ${country.name}</p>
-
-    //     <p><strong>Interests:</strong> ${interests}</p>
-    //   `,
-    // });
 
     await transporter.sendMail({
       from: `"Where To Africa" <${process.env.MAIL_USER}>`,

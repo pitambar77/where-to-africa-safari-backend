@@ -19,7 +19,22 @@ export const submitPopupform = async (req, res) => {
       country,
       acceptPolicy,
       captchaToken,
+      website,
     } = req.body;
+
+    // Honeypot
+    if (website) {
+      console.log("🚨 Spam bot detected:", {
+        email,
+        firstName,
+        lastName,
+      });
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid submission.",
+      });
+    }
 
     if (!captchaToken) {
       return res.status(400).json({
@@ -101,6 +116,7 @@ export const submitPopupform = async (req, res) => {
       phone,
       country,
       acceptPolicy,
+       website,
     });
 
     await transporter.sendMail({
